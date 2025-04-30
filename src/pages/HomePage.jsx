@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-// ACTUALIZADO: getImageUrl corregido para usar base consistentemente
+// ACTUALIZADO: getImageUrl modificado para evitar duplicación de base
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -24,22 +24,43 @@ const pageTransitionVariants = {
   noExit: { opacity: 0, y: 0, transition: { duration: 0 } }
 };
 
-// --- Helper para URL (CORREGIDO Y CONSISTENTE) ---
+// --- Helper para URL (CORREGIDO PARA EVITAR DUPLICACIÓN) ---
 const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // Obtiene base y quita la barra final si existe
 const placeholderBg = '#0a0f19';
 const placeholderText = '#f1f1ee';
 const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Image`) => {
     if (!path) return placeholder;
-    // Asegura que la ruta relativa no empiece con '/' para evitar dobles barras al unir
+
+    // Limpia la ruta relativa quitando la barra inicial si existe
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
-    // Une la base y la ruta, asegurando una sola barra entre ellas
-    return `${base}/${imagePath}`;
+
+    // Construye la URL completa potencial
+    const fullPath = `${base}/${imagePath}`;
+
+    // *** NUEVA VERIFICACIÓN ANTI-DUPLICACIÓN ***
+    // Verifica si la ruta original ya contenía la base (ignorando barras iniciales/finales)
+    const cleanBase = base.replace(/^\/|\/$/g, ''); // Base sin barras al inicio/fin
+    const cleanPath = path.replace(/^\/|\/$/g, ''); // Path original sin barras al inicio/fin
+
+    // Verifica si la ruta original ya es una URL absoluta o un placeholder
+    if (imagePath.startsWith('http') || imagePath.startsWith('https://placehold.co')) {
+        return imagePath; // Devuelve la URL absoluta/placeholder tal cual
+    }
+
+    // Verifica si la ruta original ya contenía la base
+    if (cleanBase && cleanPath.startsWith(cleanBase)) {
+       // Si el path original ya empezaba con la base, simplemente asegura una barra inicial
+       return `/${cleanPath}`;
+    }
+
+    // Si no, devuelve la ruta construida normalmente
+    return fullPath;
 };
 
 
 // --- Datos para el carrusel ---
-const carouselImagesData = projectList ? projectList.slice(0, 6) : [];
-// Usa la función getImageUrl corregida aquí también
+// Asegúrate de que projectList exista y sea un array antes de usar slice y map
+const carouselImagesData = Array.isArray(projectList) ? projectList.slice(0, 6) : [];
 const fullCarouselImages = carouselImagesData
     .map(p => p?.image) // Obtiene las rutas de imagen
     .filter(Boolean) // Filtra las nulas o vacías
@@ -85,12 +106,13 @@ function HomePage() {
   // --- Lógica de Navegación y Expansión ---
   const handleImageClick = useCallback((indexInDuplicatedArray, imageElement) => {
     const originalIndex = indexInDuplicatedArray % carouselImagesData.length;
+    // Verifica que carouselImagesData[originalIndex] exista antes de acceder a sus propiedades
     if (expandedIndex !== null || !imageElement || !carouselImagesData[originalIndex]) return;
 
     setIsExitingViaImageClick(true);
 
     const projectToNavigate = carouselImagesData[originalIndex];
-    const projectId = projectToNavigate.id;
+    const projectId = projectToNavigate.id; // Ahora es seguro acceder a .id
     const rect = imageElement.getBoundingClientRect();
     const currentOriginalImageRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
     const isScrolledDown = window.scrollY > 10;
@@ -101,7 +123,7 @@ function HomePage() {
         setExpandedIndex(originalIndex);
         setTimeout(() => {
             const pageTarget = `/project/${projectId}`;
-            // Pasa la URL *completa* con base en el estado
+            // Asegúrate de pasar la ruta correcta de la imagen
             navigate(pageTarget, { state: { imageSrc: getImageUrl(projectToNavigate.image), originRect: currentOriginalImageRect } });
         }, 600);
     };
@@ -112,7 +134,7 @@ function HomePage() {
         processImageExpand();
     }
 
-  }, [expandedIndex, navigate, carouselImagesData, disableScroll]); // Removido fullCarouselImages, se calcula dentro si es necesario
+  }, [expandedIndex, navigate, carouselImagesData, disableScroll]); // carouselImagesData es dependencia
 
 
   // --- Efecto Parallax ---
@@ -134,12 +156,14 @@ function HomePage() {
       let animationFrameId;
       let currentProgress = 0;
       const secondaryTextColor = 'color-mix(in srgb, var(--text), transparent 30%)';
-      if (!philosophyTextElement.dataset.processed && philosophyTextElement.innerText) {
-          const words = philosophyTextElement.innerText.split(' ');
-          philosophyTextElement.innerHTML = words.map(word =>
-              `<span class="word">${word.split('').map(char =>
-                  // Añade key única para cada caracter
-                  `<span key="${char}-${Math.random()}" class="char" style="color: ${secondaryTextColor}; transition: color 0.1s ease-out;">${char}</span>`
+      // Verifica que innerText exista y no esté vacío antes de procesar
+      if (!philosophyTextElement.dataset.processed && philosophyTextElement.innerText?.trim()) {
+          const words = philosophyTextElement.innerText.trim().split(' ');
+          philosophyTextElement.innerHTML = words.map((word, wordIndex) => // Añade wordIndex
+              // Añade key única para cada palabra
+              `<span key="word-${wordIndex}" class="word">${word.split('').map((char, charIndex) => // Añade charIndex
+                  // Añade key única y más robusta para cada caracter
+                  `<span key="char-${wordIndex}-${charIndex}" class="char" style="color: ${secondaryTextColor}; transition: color 0.1s ease-out;">${char}</span>`
               ).join('')}</span> `
           ).join('');
           philosophyTextElement.dataset.processed = "true";
@@ -163,13 +187,14 @@ function HomePage() {
           }
           animationFrameId = requestAnimationFrame(animateText);
       };
-      if (philosophyTextElement.dataset.processed) {
+      // Solo inicia la animación si el texto fue procesado
+      if (philosophyTextElement.dataset.processed === "true") {
           animationFrameId = requestAnimationFrame(animateText);
       }
       return () => {
           if (animationFrameId) cancelAnimationFrame(animationFrameId);
       };
-  }, []);
+  }, []); // Ejecutar solo una vez al montar
 
 
   return (
@@ -185,14 +210,17 @@ function HomePage() {
       <Header />
 
       {/* Carrusel (Full screen width) */}
-      <div className="h-screen w-screen relative flex items-center justify-center overflow-hidden py-4">
-        <InfiniteCarousel
-          images={fullCarouselImages} // Pasa las URLs completas
-          onImageClick={handleImageClick}
-          expandedIndex={expandedIndex}
-          className="z-10"
-        />
-      </div>
+      {/* Asegúrate que fullCarouselImages tenga elementos antes de renderizar */}
+      {fullCarouselImages.length > 0 && (
+        <div className="h-screen w-screen relative flex items-center justify-center overflow-hidden py-4">
+          <InfiniteCarousel
+            images={fullCarouselImages} // Pasa las URLs completas
+            onImageClick={handleImageClick}
+            expandedIndex={expandedIndex}
+            className="z-10"
+          />
+        </div>
+      )}
 
       {/* --- Secciones de Contenido --- */}
       <ScrollAnimatedSection className="container mx-auto px-6 sm:px-10 md:px-20 py-32 md:py-48 lg:py-64">
@@ -200,29 +228,32 @@ function HomePage() {
           title="Diseñamos Experiencias Únicas"
           subtitle="Arte & Arquitectura"
           titleSize="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight"
-          subtitleColor="text-[var(--text)]" // Corregido: Quitado ']' extra
+          subtitleColor="text-[var(--text)]"
           subtitleSize="text-lg md:text-xl lg:text-2xl tracking-wide"
         />
       </ScrollAnimatedSection>
 
-      <ScrollAnimatedSection ref={targetRef} className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden relative">
-         <motion.div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-[var(--secondary)]/50 via-[var(--secondary)]/10 to-transparent -z-10" style={{ y: parallaxY }} />
-         <AsymmetricLayoutSection
-            imageUrl={projectList && projectList[1] ? getImageUrl(projectList[1]?.image) : getImageUrl(null)}
-            text={
-              <motion.p ref={philosophyTextRef} className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]">
-                Nuestra filosofía se basa en la atención meticulosa al detalle y la búsqueda incesante de la armonía visual. Cada proyecto es una tela en blanco, una oportunidad para explorar nuevas formas, materiales innovadores y la interacción poética entre luz y espacio.
-              </motion.p>
-            }
-            imageSide="right"
-         />
-      </ScrollAnimatedSection>
+      {/* Verifica que projectList tenga al menos 2 elementos */}
+      {Array.isArray(projectList) && projectList.length > 1 && (
+        <ScrollAnimatedSection ref={targetRef} className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden relative">
+           <motion.div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-[var(--secondary)]/50 via-[var(--secondary)]/10 to-transparent -z-10" style={{ y: parallaxY }} />
+           <AsymmetricLayoutSection
+              imageUrl={getImageUrl(projectList[1]?.image)} // Usa getImageUrl y maneja posible undefined
+              text={
+                <motion.p ref={philosophyTextRef} className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]">
+                  Nuestra filosofía se basa en la atención meticulosa al detalle y la búsqueda incesante de la armonía visual. Cada proyecto es una tela en blanco, una oportunidad para explorar nuevas formas, materiales innovadores y la interacción poética entre luz y espacio.
+                </motion.p>
+              }
+              imageSide="right"
+           />
+        </ScrollAnimatedSection>
+      )}
 
        {/* Proyectos Recientes Section */}
        <ScrollAnimatedSection className="bg-[var(--background)] text-[var(--text)] py-32 md:py-40 lg:py-48">
           <div className="container mx-auto px-6 sm:px-10 md:px-20 text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-tight">Proyectos Recientes</h2>
-            <p className="text-xl md:text-2xl text-[var(--text)] max-w-3xl mx-auto mb-12 leading-relaxed"> {/* Corregido: Quitado ']' extra */}
+            <p className="text-xl md:text-2xl text-[var(--text)] max-w-3xl mx-auto mb-12 leading-relaxed">
               Descubre cómo transformamos visiones audaces en realidades tangibles y espacios que inspiran.
             </p>
             <motion.button onClick={() => navigate('/projects')} className="bg-[var(--accent)] text-[var(--background)] font-semibold px-10 py-4 rounded-full text-lg hover:bg-opacity-90 transition-colors duration-300 shadow-md hover:shadow-lg" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
@@ -231,22 +262,28 @@ function HomePage() {
          </div>
        </ScrollAnimatedSection>
 
-      <ScrollAnimatedSection animation="slideInLeft" className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden">
-         <AsymmetricLayoutSection
-           imageUrl={projectList && projectList[3] ? getImageUrl(projectList[3]?.image) : getImageUrl(null)}
-           text="La innovación constante y la selección de materiales de vanguardia definen nuestro enfoque distintivo en cada nueva creación arquitectónica que emprendemos."
-           imageSide="left"
-           textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]" // Corregido: Quitado ']' extra
-         />
-       </ScrollAnimatedSection>
+      {/* Verifica que projectList tenga al menos 4 elementos */}
+      {Array.isArray(projectList) && projectList.length > 3 && (
+        <ScrollAnimatedSection animation="slideInLeft" className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden">
+           <AsymmetricLayoutSection
+             imageUrl={getImageUrl(projectList[3]?.image)} // Usa getImageUrl y maneja posible undefined
+             text="La innovación constante y la selección de materiales de vanguardia definen nuestro enfoque distintivo en cada nueva creación arquitectónica que emprendemos."
+             imageSide="left"
+             textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]"
+           />
+         </ScrollAnimatedSection>
+      )}
 
       <Footer />
 
       {/* Clon para Animación */}
       <AnimatePresence>
-          {expandedIndex !== null && originalImageRect && carouselImagesData[expandedIndex] && (
+          {/* Verifica que expandedIndex sea válido y existan los datos necesarios */}
+          {expandedIndex !== null &&
+           originalImageRect &&
+           carouselImagesData[expandedIndex % carouselImagesData.length] &&
+           fullCarouselImages[expandedIndex % fullCarouselImages.length] && (
               <motion.div
-                // Añade key única para el clon en animación
                 key={`cloned-image-${expandedIndex}`}
                 className="fixed z-[60] pointer-events-none bg-[var(--background)] origin-top"
                 initial={{
@@ -266,8 +303,7 @@ function HomePage() {
                 }}
               >
                 <motion.img
-                  // Usa la URL completa calculada previamente
-                  src={fullCarouselImages[expandedIndex % fullCarouselImages.length]} // Usa módulo por si acaso
+                  src={fullCarouselImages[expandedIndex % fullCarouselImages.length]} // Usa modulo por seguridad
                   alt="Expanding project"
                   className="w-full h-full object-cover object-top"
                   initial={{ scale: 1 }}
