@@ -12,38 +12,69 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Actualizado
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Actualizado
+        with:
+          node-version: '20' # Especifica una versión LTS o la que necesites
 
       - name: Install dependencies
-        uses: bahmutov/npm-install@v1
+        # Considerar usar 'npm ci' para instalaciones más rápidas y fiables en CI
+        # run: npm ci
+        uses: bahmutov/npm-install@v1 # O mantenlo si prefieres esta acción
 
       - name: Build project
         run: npm run build
 
+      # --- PASO AÑADIDO PARA DEPURACIÓN ---
+      - name: Check build output directory
+        run: |
+          echo "Checking contents of ./dist..."
+          ls -R ./dist
+          # Si el comando 'ls' falla, significa que ./dist no existe.
+          # Si existe pero está vacío, el comando mostrará sólo './dist:'.
+
       - name: Upload production-ready build files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Actualizado
         with:
           name: production-files
           path: ./dist
+          if-no-files-found: error # Añadido: Falla si ./dist está vacío o no existe
 
   deploy:
     name: Deploy
-    needs: build
+    needs: build # Asegura que 'build' termine correctamente antes de empezar 'deploy'
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4 # Actualizado
         with:
           name: production-files
-          path: ./dist
+          # No necesitas 'path' aquí si quieres que descargue en el directorio raíz del workspace
+          # Si especificas 'path: ./dist', creará un directorio 'dist' y pondrá los archivos DENTRO de él.
+          # La acción gh-pages espera los archivos directamente en publish_dir, así que
+          # es mejor no especificar 'path' aquí si publish_dir es './dist'.
+          # O si especificas path: ./dist aquí, cambia publish_dir a './dist' abajo.
+          # Vamos a quitar 'path' para que descargue en la raíz y coincida con publish_dir: ./dist
+          # path: ./dist # Eliminado o ajusta publish_dir
+
+      # --- PASO AÑADIDO PARA DEPURACIÓN ---
+      - name: Check downloaded files
+        run: |
+          echo "Checking contents after download..."
+          ls -R . # Lista todo en la raíz
+          echo "Checking contents of ./dist specifically..."
+          ls -R ./dist # Verifica si la carpeta dist existe y qué contiene
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4 # Actualizado
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./dist # Asegúrate que esto coincide con dónde están tus archivos post-descarga
+          # Si quitaste 'path' en download-artifact, los archivos estarán directamente en la raíz.
+          # Si tu build crea los archivos DENTRO de 'dist', entonces './dist' es correcto.
+          # Si tu build crea los archivos en la raíz, cambia esto a './'.
+          # Basado en tu build original, './dist' debería ser correcto.
