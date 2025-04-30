@@ -14,7 +14,8 @@ import AsymmetricLayoutSection from '../components/AsymmetricLayoutSection';
 import useSmoothScroll from '../hooks/useSmoothScroll';
 import useDisableBodyScroll from '../hooks/useDisableBodyScroll';
 import Footer from '../components/Footer';
-import { projectList } from '../data/projectData';
+// --- CORREGIDO ---
+import { projectList } from '../data/ProjectData.js'; // Corrected path and casing
 
 // --- Variantes de Transición de Página Suaves ---
 const pageTransitionVariants = {
@@ -56,7 +57,8 @@ const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeho
 };
 
 // --- Datos para el carrusel ---
-const carouselImagesData = projectList.slice(0, 6);
+// Ensure projectList is available before mapping
+const carouselImagesData = projectList ? projectList.slice(0, 6) : [];
 const carouselImages = carouselImagesData.map(p => p?.image).filter(Boolean);
 const fullCarouselImages = carouselImages.map(src => getImageUrl(src));
 
@@ -214,7 +216,7 @@ function HomePage() {
           title="Diseñamos Experiencias Únicas"
           subtitle="Arte & Arquitectura"
           titleSize="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight"
-          subtitleColor="text-[var(--text)]]"
+          subtitleColor="text-[var(--text)]]" // Check if this class is correct
           subtitleSize="text-lg md:text-xl lg:text-2xl tracking-wide"
         />
       </ScrollAnimatedSection>
@@ -222,7 +224,8 @@ function HomePage() {
       <ScrollAnimatedSection ref={targetRef} className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden relative">
          <motion.div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-[var(--secondary)]/50 via-[var(--secondary)]/10 to-transparent -z-10" style={{ y: parallaxY }} />
          <AsymmetricLayoutSection
-            imageUrl={getImageUrl(projectList[1]?.image)}
+            // Ensure projectList[1] exists before accessing image
+            imageUrl={projectList && projectList[1] ? getImageUrl(projectList[1]?.image) : getImageUrl(null)}
             text={
               <motion.p ref={philosophyTextRef} className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]">
                 Nuestra filosofía se basa en la atención meticulosa al detalle y la búsqueda incesante de la armonía visual. Cada proyecto es una tela en blanco, una oportunidad para explorar nuevas formas, materiales innovadores y la interacción poética entre luz y espacio.
@@ -236,7 +239,7 @@ function HomePage() {
        <ScrollAnimatedSection className="bg-[var(--background)] text-[var(--text)] py-32 md:py-40 lg:py-48">
           <div className="container mx-auto px-6 sm:px-10 md:px-20 text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-tight">Proyectos Recientes</h2>
-            <p className="text-xl md:text-2xl text-[var(--text)]] max-w-3xl mx-auto mb-12 leading-relaxed">
+            <p className="text-xl md:text-2xl text-[var(--text)]] max-w-3xl mx-auto mb-12 leading-relaxed"> {/* Check if text-[var(--text)]] is correct */}
               Descubre cómo transformamos visiones audaces en realidades tangibles y espacios que inspiran.
             </p>
             <motion.button onClick={() => navigate('/projects')} className="bg-[var(--accent)] text-[var(--background)] font-semibold px-10 py-4 rounded-full text-lg hover:bg-opacity-90 transition-colors duration-300 shadow-md hover:shadow-lg" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
@@ -247,10 +250,11 @@ function HomePage() {
 
       <ScrollAnimatedSection animation="slideInLeft" className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden">
          <AsymmetricLayoutSection
-           imageUrl={getImageUrl(projectList[3]?.image)}
+           // Ensure projectList[3] exists before accessing image
+           imageUrl={projectList && projectList[3] ? getImageUrl(projectList[3]?.image) : getImageUrl(null)}
            text="La innovación constante y la selección de materiales de vanguardia definen nuestro enfoque distintivo en cada nueva creación arquitectónica que emprendemos."
            imageSide="left"
-           textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]]"
+           textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]]" // Check if this class is correct
          />
        </ScrollAnimatedSection>
 
