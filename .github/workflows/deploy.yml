@@ -42,39 +42,29 @@ jobs:
           path: ./dist
           if-no-files-found: error # Añadido: Falla si ./dist está vacío o no existe
 
-  deploy:
-    name: Deploy
-    needs: build # Asegura que 'build' termine correctamente antes de empezar 'deploy'
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    deploy:
+      name: Deploy
+      needs: build # Ensures 'build' job completes successfully first
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/main' # Only run on pushes to the main branch
 
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4 # Actualizado
-        with:
-          name: production-files
-          # No necesitas 'path' aquí si quieres que descargue en el directorio raíz del workspace
-          # Si especificas 'path: ./dist', creará un directorio 'dist' y pondrá los archivos DENTRO de él.
-          # La acción gh-pages espera los archivos directamente en publish_dir, así que
-          # es mejor no especificar 'path' aquí si publish_dir es './dist'.
-          # O si especificas path: ./dist aquí, cambia publish_dir a './dist' abajo.
-          # Vamos a quitar 'path' para que descargue en la raíz y coincida con publish_dir: ./dist
-          # path: ./dist # Eliminado o ajusta publish_dir
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: production-files
+            # No 'path' specified, files will be downloaded to the workspace root '.'
 
-      # --- PASO AÑADIDO PARA DEPURACIÓN ---
-      - name: Check downloaded files
-        run: |
-          echo "Checking contents after download..."
-          ls -R . # Lista todo en la raíz
-          echo "Checking contents of ./dist specifically..."
-          ls -R ./dist # Verifica si la carpeta dist existe y qué contiene
+        # --- PASO DE DEPURACIÓN AJUSTADO ---
+        - name: Check downloaded files
+          run: |
+            echo "Checking contents after download (workspace root)..."
+            ls -R . # List everything in the root directory '.'
+            # El comando 'ls -R ./dist' fue eliminado porque la carpeta dist ya no existe aquí.
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4 # Actualizado
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist # Asegúrate que esto coincide con dónde están tus archivos post-descarga
-          # Si quitaste 'path' en download-artifact, los archivos estarán directamente en la raíz.
-          # Si tu build crea los archivos DENTRO de 'dist', entonces './dist' es correcto.
-          # Si tu build crea los archivos en la raíz, cambia esto a './'.
-          # Basado en tu build original, './dist' debería ser correcto.
+        - name: Deploy to GitHub Pages
+          uses: peaceiris/actions-gh-pages@v4
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            # --- CORREGIDO ---
+            publish_dir: . # Publish from the root directory where files were downloaded
