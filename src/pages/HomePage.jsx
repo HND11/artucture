@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-// ACTUALIZADO: Añadidas definiciones de placeholderBg y placeholderText
+// VERSIÓN FINAL: Asegurando getImageUrl simple y correcto
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 // Importa componentes y hooks
 import Header from '../components/Header';
-import InfiniteCarousel from '../components/InfiniteCarousel';
+import InfiniteCarousel from '../components/InfiniteCarousel'; // Asegúrate que la ruta sea correcta
 import ScrollAnimatedSection from '../components/ScrollAnimatedSection';
 import TextFeatureSection from '../components/TextFeatureSection';
 import AsymmetricLayoutSection from '../components/AsymmetricLayoutSection';
@@ -24,28 +24,30 @@ const pageTransitionVariants = {
   noExit: { opacity: 0, y: 0, transition: { duration: 0 } }
 };
 
-// --- Helper para URL (Versión Simple) ---
+// --- Helper para URL (Versión Simple - Asume rutas en ProjectData NO tienen /artucture/ y son relativas a public) ---
 const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-// --- AÑADIDO: Definiciones para el placeholder ---
-const placeholderBg = '#0a0f19'; // Color de fondo del placeholder
-const placeholderText = '#f1f1ee'; // Color de texto del placeholder
-// -------------------------------------------------
+const placeholderBg = '#0a0f19'; // Definido para el placeholder
+const placeholderText = '#f1f1ee'; // Definido para el placeholder
 const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Image`) => {
     if (!path) return placeholder;
+    // Si ya es absoluta o placeholder, devolverla
     if (path.startsWith('http') || path.startsWith('https://placehold.co')) {
         return path;
     }
+    // Asegura que la ruta relativa NO empiece con '/' porque la base ya podría tenerla o no
+    // Y une la base y la ruta relativa asegurando una sola barra
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
     return `${base}/${imagePath}`;
 };
 
 
 // --- Datos para el carrusel ---
+// Asegúrate de que projectList exista y sea un array antes de usar slice y map
 const carouselImagesData = Array.isArray(projectList) ? projectList.slice(0, 6) : [];
 const fullCarouselImages = carouselImagesData
-    .map(p => p?.image)
-    .filter(Boolean)
-    .map(src => getImageUrl(src)); // Usa la función getImageUrl
+    .map(p => p?.image) // Obtiene las rutas de imagen
+    .filter(Boolean) // Filtra las nulas o vacías
+    .map(src => getImageUrl(src)); // Construye la URL completa con base
 
 // --- Variantes de Animación (Otras) ---
 const sectionVariants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } } };
