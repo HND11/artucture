@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-// ACTUALIZADO: getImageUrl modificado para evitar duplicación de base
+// ACTUALIZADO: Usando la versión SIMPLE de getImageUrl
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -14,7 +14,7 @@ import AsymmetricLayoutSection from '../components/AsymmetricLayoutSection';
 import useSmoothScroll from '../hooks/useSmoothScroll';
 import useDisableBodyScroll from '../hooks/useDisableBodyScroll';
 import Footer from '../components/Footer';
-import { projectList } from '../data/ProjectData.js';
+import { projectList } from '../data/ProjectData.js'; // Asegúrate que la ruta sea correcta
 
 // --- Variantes de Transición de Página Suaves ---
 const pageTransitionVariants = {
@@ -24,47 +24,29 @@ const pageTransitionVariants = {
   noExit: { opacity: 0, y: 0, transition: { duration: 0 } }
 };
 
-// --- Helper para URL (CORREGIDO PARA EVITAR DUPLICACIÓN) ---
+// --- Helper para URL (Versión Simple - Asume rutas en ProjectData empiezan con / y son relativas a public) ---
 const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // Obtiene base y quita la barra final si existe
 const placeholderBg = '#0a0f19';
 const placeholderText = '#f1f1ee';
 const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Image`) => {
     if (!path) return placeholder;
-
-    // Limpia la ruta relativa quitando la barra inicial si existe
+    // Verifica si la ruta ya es una URL absoluta o un placeholder
+    if (path.startsWith('http') || path.startsWith('https://placehold.co')) {
+        return path;
+    }
+    // Asegura que la ruta relativa no empiece con '/' para evitar dobles barras al unir
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
-
-    // Construye la URL completa potencial
-    const fullPath = `${base}/${imagePath}`;
-
-    // *** NUEVA VERIFICACIÓN ANTI-DUPLICACIÓN ***
-    // Verifica si la ruta original ya contenía la base (ignorando barras iniciales/finales)
-    const cleanBase = base.replace(/^\/|\/$/g, ''); // Base sin barras al inicio/fin
-    const cleanPath = path.replace(/^\/|\/$/g, ''); // Path original sin barras al inicio/fin
-
-    // Verifica si la ruta original ya es una URL absoluta o un placeholder
-    if (imagePath.startsWith('http') || imagePath.startsWith('https://placehold.co')) {
-        return imagePath; // Devuelve la URL absoluta/placeholder tal cual
-    }
-
-    // Verifica si la ruta original ya contenía la base
-    if (cleanBase && cleanPath.startsWith(cleanBase)) {
-       // Si el path original ya empezaba con la base, simplemente asegura una barra inicial
-       return `/${cleanPath}`;
-    }
-
-    // Si no, devuelve la ruta construida normalmente
-    return fullPath;
+    // Une la base y la ruta relativa
+    return `${base}/${imagePath}`;
 };
 
 
 // --- Datos para el carrusel ---
-// Asegúrate de que projectList exista y sea un array antes de usar slice y map
 const carouselImagesData = Array.isArray(projectList) ? projectList.slice(0, 6) : [];
 const fullCarouselImages = carouselImagesData
-    .map(p => p?.image) // Obtiene las rutas de imagen
-    .filter(Boolean) // Filtra las nulas o vacías
-    .map(src => getImageUrl(src)); // Construye la URL completa con base
+    .map(p => p?.image)
+    .filter(Boolean)
+    .map(src => getImageUrl(src)); // Usa la función getImageUrl
 
 // --- Variantes de Animación (Otras) ---
 const sectionVariants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } } };
@@ -106,13 +88,12 @@ function HomePage() {
   // --- Lógica de Navegación y Expansión ---
   const handleImageClick = useCallback((indexInDuplicatedArray, imageElement) => {
     const originalIndex = indexInDuplicatedArray % carouselImagesData.length;
-    // Verifica que carouselImagesData[originalIndex] exista antes de acceder a sus propiedades
     if (expandedIndex !== null || !imageElement || !carouselImagesData[originalIndex]) return;
 
     setIsExitingViaImageClick(true);
 
     const projectToNavigate = carouselImagesData[originalIndex];
-    const projectId = projectToNavigate.id; // Ahora es seguro acceder a .id
+    const projectId = projectToNavigate.id;
     const rect = imageElement.getBoundingClientRect();
     const currentOriginalImageRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
     const isScrolledDown = window.scrollY > 10;
@@ -123,7 +104,6 @@ function HomePage() {
         setExpandedIndex(originalIndex);
         setTimeout(() => {
             const pageTarget = `/project/${projectId}`;
-            // Asegúrate de pasar la ruta correcta de la imagen
             navigate(pageTarget, { state: { imageSrc: getImageUrl(projectToNavigate.image), originRect: currentOriginalImageRect } });
         }, 600);
     };
@@ -134,7 +114,7 @@ function HomePage() {
         processImageExpand();
     }
 
-  }, [expandedIndex, navigate, carouselImagesData, disableScroll]); // carouselImagesData es dependencia
+  }, [expandedIndex, navigate, carouselImagesData, disableScroll]);
 
 
   // --- Efecto Parallax ---
@@ -156,13 +136,10 @@ function HomePage() {
       let animationFrameId;
       let currentProgress = 0;
       const secondaryTextColor = 'color-mix(in srgb, var(--text), transparent 30%)';
-      // Verifica que innerText exista y no esté vacío antes de procesar
       if (!philosophyTextElement.dataset.processed && philosophyTextElement.innerText?.trim()) {
           const words = philosophyTextElement.innerText.trim().split(' ');
-          philosophyTextElement.innerHTML = words.map((word, wordIndex) => // Añade wordIndex
-              // Añade key única para cada palabra
-              `<span key="word-${wordIndex}" class="word">${word.split('').map((char, charIndex) => // Añade charIndex
-                  // Añade key única y más robusta para cada caracter
+          philosophyTextElement.innerHTML = words.map((word, wordIndex) =>
+              `<span key="word-${wordIndex}" class="word">${word.split('').map((char, charIndex) =>
                   `<span key="char-${wordIndex}-${charIndex}" class="char" style="color: ${secondaryTextColor}; transition: color 0.1s ease-out;">${char}</span>`
               ).join('')}</span> `
           ).join('');
@@ -187,14 +164,13 @@ function HomePage() {
           }
           animationFrameId = requestAnimationFrame(animateText);
       };
-      // Solo inicia la animación si el texto fue procesado
       if (philosophyTextElement.dataset.processed === "true") {
           animationFrameId = requestAnimationFrame(animateText);
       }
       return () => {
           if (animationFrameId) cancelAnimationFrame(animationFrameId);
       };
-  }, []); // Ejecutar solo una vez al montar
+  }, []);
 
 
   return (
@@ -209,12 +185,11 @@ function HomePage() {
     >
       <Header />
 
-      {/* Carrusel (Full screen width) */}
-      {/* Asegúrate que fullCarouselImages tenga elementos antes de renderizar */}
+      {/* Carrusel */}
       {fullCarouselImages.length > 0 && (
         <div className="h-screen w-screen relative flex items-center justify-center overflow-hidden py-4">
           <InfiniteCarousel
-            images={fullCarouselImages} // Pasa las URLs completas
+            images={fullCarouselImages}
             onImageClick={handleImageClick}
             expandedIndex={expandedIndex}
             className="z-10"
@@ -238,7 +213,7 @@ function HomePage() {
         <ScrollAnimatedSection ref={targetRef} className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden relative">
            <motion.div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-[var(--secondary)]/50 via-[var(--secondary)]/10 to-transparent -z-10" style={{ y: parallaxY }} />
            <AsymmetricLayoutSection
-              imageUrl={getImageUrl(projectList[1]?.image)} // Usa getImageUrl y maneja posible undefined
+              imageUrl={getImageUrl(projectList[1]?.image)} // Usa getImageUrl
               text={
                 <motion.p ref={philosophyTextRef} className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]">
                   Nuestra filosofía se basa en la atención meticulosa al detalle y la búsqueda incesante de la armonía visual. Cada proyecto es una tela en blanco, una oportunidad para explorar nuevas formas, materiales innovadores y la interacción poética entre luz y espacio.
@@ -266,7 +241,7 @@ function HomePage() {
       {Array.isArray(projectList) && projectList.length > 3 && (
         <ScrollAnimatedSection animation="slideInLeft" className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden">
            <AsymmetricLayoutSection
-             imageUrl={getImageUrl(projectList[3]?.image)} // Usa getImageUrl y maneja posible undefined
+             imageUrl={getImageUrl(projectList[3]?.image)} // Usa getImageUrl
              text="La innovación constante y la selección de materiales de vanguardia definen nuestro enfoque distintivo en cada nueva creación arquitectónica que emprendemos."
              imageSide="left"
              textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]"
@@ -278,7 +253,6 @@ function HomePage() {
 
       {/* Clon para Animación */}
       <AnimatePresence>
-          {/* Verifica que expandedIndex sea válido y existan los datos necesarios */}
           {expandedIndex !== null &&
            originalImageRect &&
            carouselImagesData[expandedIndex % carouselImagesData.length] &&
@@ -303,7 +277,7 @@ function HomePage() {
                 }}
               >
                 <motion.img
-                  src={fullCarouselImages[expandedIndex % fullCarouselImages.length]} // Usa modulo por seguridad
+                  src={fullCarouselImages[expandedIndex % fullCarouselImages.length]}
                   alt="Expanding project"
                   className="w-full h-full object-cover object-top"
                   initial={{ scale: 1 }}
