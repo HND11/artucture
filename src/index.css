@@ -1,0 +1,40 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+* {
+  font-family: 'Poppins', sans-serif;
+  /* transition: background-color 0.3s ease, color 0.3s ease; */
+}
+
+:root {
+  scrollbar-width: none;
+  --text: #f1f1ee;
+  --background: #0a0f19;
+  --primary: #f5e8c7;
+  --secondary: #151a22;
+  --accent: #f5e8c7;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- NUEVA REGLA GLOBAL --- */
+/* Previene fondos por defecto en hover para TODOS los enlaces */
+a:hover {
+  background-color: transparent; /* Asegura que no haya fondo por defecto */
+  /* NO definimos 'color' aquí globalmente, */
+  /* para permitir que clases de Tailwind como hover:text-[var(--accent)] funcionen */
+  /* donde se apliquen específicamente. */
+}
+/* --- FIN NUEVA REGLA GLOBAL --- */
+
+/* Puedes mantener reglas específicas si las necesitas, por ejemplo: */
+/* footer a:hover { */
+/* color: var(--accent); /* Esto todavía se aplicaría específicamente a los enlaces del footer */
+/* } */
+/* Aunque es mejor manejar el color con clases de Tailwind en el componente */
