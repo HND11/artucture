@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-// ACTUALIZADO: Se deshabilita la animación de salida de página al hacer clic en imagen
+// ACTUALIZADO: getImageUrl corregido para usar base consistentemente
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -14,53 +14,36 @@ import AsymmetricLayoutSection from '../components/AsymmetricLayoutSection';
 import useSmoothScroll from '../hooks/useSmoothScroll';
 import useDisableBodyScroll from '../hooks/useDisableBodyScroll';
 import Footer from '../components/Footer';
-// --- CORREGIDO ---
-import { projectList } from '../data/ProjectData.js'; // Corrected path and casing
+import { projectList } from '../data/ProjectData.js';
 
 // --- Variantes de Transición de Página Suaves ---
 const pageTransitionVariants = {
-  hidden: {
-    opacity: 0,
-    y: 20
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeInOut"
-    }
-  },
-  exit: { // Animación de salida normal
-    opacity: 0,
-    y: -20,
-    transition: {
-      duration: 0.4,
-      ease: "easeInOut"
-    }
-  },
-  noExit: { // Salida instantánea cuando se hace clic en imagen
-    opacity: 0,
-    y: 0,
-    transition: { duration: 0 }
-  }
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeInOut" } },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: "easeInOut" } },
+  noExit: { opacity: 0, y: 0, transition: { duration: 0 } }
 };
 
-// --- Helper para URL ---
-const base = import.meta.env.BASE_URL || '/';
+// --- Helper para URL (CORREGIDO Y CONSISTENTE) ---
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // Obtiene base y quita la barra final si existe
 const placeholderBg = '#0a0f19';
 const placeholderText = '#f1f1ee';
 const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Image`) => {
     if (!path) return placeholder;
+    // Asegura que la ruta relativa no empiece con '/' para evitar dobles barras al unir
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
-    return `${base}${imagePath}`;
+    // Une la base y la ruta, asegurando una sola barra entre ellas
+    return `${base}/${imagePath}`;
 };
 
+
 // --- Datos para el carrusel ---
-// Ensure projectList is available before mapping
 const carouselImagesData = projectList ? projectList.slice(0, 6) : [];
-const carouselImages = carouselImagesData.map(p => p?.image).filter(Boolean);
-const fullCarouselImages = carouselImages.map(src => getImageUrl(src));
+// Usa la función getImageUrl corregida aquí también
+const fullCarouselImages = carouselImagesData
+    .map(p => p?.image) // Obtiene las rutas de imagen
+    .filter(Boolean) // Filtra las nulas o vacías
+    .map(src => getImageUrl(src)); // Construye la URL completa con base
 
 // --- Variantes de Animación (Otras) ---
 const sectionVariants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } } };
@@ -95,7 +78,7 @@ function HomePage() {
 
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [originalImageRect, setOriginalImageRect] = useState(null);
-  const [isExitingViaImageClick, setIsExitingViaImageClick] = useState(false); // Estado para controlar salida
+  const [isExitingViaImageClick, setIsExitingViaImageClick] = useState(false);
   const homePageRef = useRef(null);
   const philosophyTextRef = useRef(null);
 
@@ -104,7 +87,7 @@ function HomePage() {
     const originalIndex = indexInDuplicatedArray % carouselImagesData.length;
     if (expandedIndex !== null || !imageElement || !carouselImagesData[originalIndex]) return;
 
-    setIsExitingViaImageClick(true); // Marcar salida por clic en imagen
+    setIsExitingViaImageClick(true);
 
     const projectToNavigate = carouselImagesData[originalIndex];
     const projectId = projectToNavigate.id;
@@ -116,10 +99,10 @@ function HomePage() {
         disableScroll();
         setOriginalImageRect(currentOriginalImageRect);
         setExpandedIndex(originalIndex);
-        // Retrasar navegación para permitir animación del clon
         setTimeout(() => {
             const pageTarget = `/project/${projectId}`;
-            navigate(pageTarget, { state: { imageSrc: fullCarouselImages[originalIndex], originRect: currentOriginalImageRect } });
+            // Pasa la URL *completa* con base en el estado
+            navigate(pageTarget, { state: { imageSrc: getImageUrl(projectToNavigate.image), originRect: currentOriginalImageRect } });
         }, 600);
     };
 
@@ -129,7 +112,7 @@ function HomePage() {
         processImageExpand();
     }
 
-  }, [expandedIndex, navigate, fullCarouselImages, carouselImagesData, disableScroll]);
+  }, [expandedIndex, navigate, carouselImagesData, disableScroll]); // Removido fullCarouselImages, se calcula dentro si es necesario
 
 
   // --- Efecto Parallax ---
@@ -155,7 +138,8 @@ function HomePage() {
           const words = philosophyTextElement.innerText.split(' ');
           philosophyTextElement.innerHTML = words.map(word =>
               `<span class="word">${word.split('').map(char =>
-                  `<span class="char" style="color: ${secondaryTextColor}; transition: color 0.1s ease-out;">${char}</span>`
+                  // Añade key única para cada caracter
+                  `<span key="${char}-${Math.random()}" class="char" style="color: ${secondaryTextColor}; transition: color 0.1s ease-out;">${char}</span>`
               ).join('')}</span> `
           ).join('');
           philosophyTextElement.dataset.processed = "true";
@@ -194,7 +178,7 @@ function HomePage() {
       ref={homePageRef}
       initial="hidden"
       animate="visible"
-      exit={isExitingViaImageClick ? "noExit" : "exit"} // EXIT CONDICIONAL
+      exit={isExitingViaImageClick ? "noExit" : "exit"}
       variants={pageTransitionVariants}
       className="overflow-x-hidden min-h-screen font-sans antialiased bg-[var(--background)] text-[var(--text)]"
     >
@@ -203,7 +187,7 @@ function HomePage() {
       {/* Carrusel (Full screen width) */}
       <div className="h-screen w-screen relative flex items-center justify-center overflow-hidden py-4">
         <InfiniteCarousel
-          images={fullCarouselImages}
+          images={fullCarouselImages} // Pasa las URLs completas
           onImageClick={handleImageClick}
           expandedIndex={expandedIndex}
           className="z-10"
@@ -216,7 +200,7 @@ function HomePage() {
           title="Diseñamos Experiencias Únicas"
           subtitle="Arte & Arquitectura"
           titleSize="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight"
-          subtitleColor="text-[var(--text)]]" // Check if this class is correct
+          subtitleColor="text-[var(--text)]" // Corregido: Quitado ']' extra
           subtitleSize="text-lg md:text-xl lg:text-2xl tracking-wide"
         />
       </ScrollAnimatedSection>
@@ -224,7 +208,6 @@ function HomePage() {
       <ScrollAnimatedSection ref={targetRef} className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden relative">
          <motion.div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-[var(--secondary)]/50 via-[var(--secondary)]/10 to-transparent -z-10" style={{ y: parallaxY }} />
          <AsymmetricLayoutSection
-            // Ensure projectList[1] exists before accessing image
             imageUrl={projectList && projectList[1] ? getImageUrl(projectList[1]?.image) : getImageUrl(null)}
             text={
               <motion.p ref={philosophyTextRef} className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]">
@@ -239,7 +222,7 @@ function HomePage() {
        <ScrollAnimatedSection className="bg-[var(--background)] text-[var(--text)] py-32 md:py-40 lg:py-48">
           <div className="container mx-auto px-6 sm:px-10 md:px-20 text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-tight">Proyectos Recientes</h2>
-            <p className="text-xl md:text-2xl text-[var(--text)]] max-w-3xl mx-auto mb-12 leading-relaxed"> {/* Check if text-[var(--text)]] is correct */}
+            <p className="text-xl md:text-2xl text-[var(--text)] max-w-3xl mx-auto mb-12 leading-relaxed"> {/* Corregido: Quitado ']' extra */}
               Descubre cómo transformamos visiones audaces en realidades tangibles y espacios que inspiran.
             </p>
             <motion.button onClick={() => navigate('/projects')} className="bg-[var(--accent)] text-[var(--background)] font-semibold px-10 py-4 rounded-full text-lg hover:bg-opacity-90 transition-colors duration-300 shadow-md hover:shadow-lg" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
@@ -250,11 +233,10 @@ function HomePage() {
 
       <ScrollAnimatedSection animation="slideInLeft" className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden">
          <AsymmetricLayoutSection
-           // Ensure projectList[3] exists before accessing image
            imageUrl={projectList && projectList[3] ? getImageUrl(projectList[3]?.image) : getImageUrl(null)}
            text="La innovación constante y la selección de materiales de vanguardia definen nuestro enfoque distintivo en cada nueva creación arquitectónica que emprendemos."
            imageSide="left"
-           textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]]" // Check if this class is correct
+           textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]" // Corregido: Quitado ']' extra
          />
        </ScrollAnimatedSection>
 
@@ -264,6 +246,8 @@ function HomePage() {
       <AnimatePresence>
           {expandedIndex !== null && originalImageRect && carouselImagesData[expandedIndex] && (
               <motion.div
+                // Añade key única para el clon en animación
+                key={`cloned-image-${expandedIndex}`}
                 className="fixed z-[60] pointer-events-none bg-[var(--background)] origin-top"
                 initial={{
                   left: originalImageRect.x,
@@ -278,24 +262,16 @@ function HomePage() {
                   width: '100vw',
                   height: '100vh',
                   borderRadius: '0px',
-                  transition: {
-                    duration: 0.6,
-                    ease: [0.16, 1, 0.3, 1]
-                  }
+                  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
                 }}
               >
                 <motion.img
-                  src={fullCarouselImages[expandedIndex]}
+                  // Usa la URL completa calculada previamente
+                  src={fullCarouselImages[expandedIndex % fullCarouselImages.length]} // Usa módulo por si acaso
                   alt="Expanding project"
                   className="w-full h-full object-cover object-top"
                   initial={{ scale: 1 }}
-                  animate={{
-                    scale: 1,
-                    transition: {
-                      duration: 0.6,
-                      ease: [0.16, 1, 0.3, 1]
-                    }
-                  }}
+                  animate={{ scale: 1, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
                 />
               </motion.div>
           )}
