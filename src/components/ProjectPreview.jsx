@@ -1,11 +1,14 @@
+// src/components/ProjectPreview.jsx
 import { motion } from 'framer-motion';
 
-// Helper para URL (con placeholder oscuro)
-const getImageUrl = (path, placeholder = 'https://placehold.co/600x800/0a0f19/f1f1ee?text=Preview') => {
+// Helper para URL (con placeholder oscuro) - SE MANTIENE PERO NO SE USA PARA LA IMAGEN PRINCIPAL
+const placeholderBg = '#0a0f19';
+const placeholderText = '#f1f1ee';
+const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Preview`) => {
     const base = import.meta.env.BASE_URL || '/';
     if (!path) return placeholder;
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
-    return `${base}${imagePath}`;
+    return `${base}/${imagePath}`;
 };
 
 const ProjectPreview = ({
@@ -23,7 +26,7 @@ const ProjectPreview = ({
     hidden: { opacity: 0 },
     visible: { opacity: 1 }
   };
-  
+
   // Separating text variant from overlay
   const textVariants = {
     hidden: { opacity: 0 },
@@ -45,15 +48,18 @@ const ProjectPreview = ({
       {/* Contenedor */}
       <div
         className="w-full h-full relative overflow-hidden bg-[--color-surface]/30 rounded-4xl"
-        style={{ 
-          transform: 'translateZ(0)', 
-          backfaceVisibility: 'hidden', 
-          WebkitBackfaceVisibility: 'hidden' 
+        style={{
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
         }}
       >
         {/* Image - Using regular img with style for better performance */}
         <img
-          src={getImageUrl(src)}
+          // --- CAMBIO PRINCIPAL ---
+          // Usa la prop 'src' directamente, ya que viene procesada desde HomePage
+          src={src}
+          // --- FIN CAMBIO PRINCIPAL ---
           alt={`Project ${index + 1}`}
           className="w-full h-full object-cover"
           draggable={false}
@@ -64,8 +70,10 @@ const ProjectPreview = ({
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden'
           }}
+          // Opcional: Añadir onError para mostrar placeholder si falla la carga
+          onError={(e) => { e.target.src = getImageUrl(null); }} // Usa la función getImageUrl solo para el placeholder en caso de error
         />
-        
+
         {/* Overlay with text */}
         {!isExpanded && (
           <motion.div
