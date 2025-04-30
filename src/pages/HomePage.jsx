@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-// ACTUALIZADO: Usando la versión SIMPLE de getImageUrl
+// ACTUALIZADO: Añadidas definiciones de placeholderBg y placeholderText
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -24,18 +24,19 @@ const pageTransitionVariants = {
   noExit: { opacity: 0, y: 0, transition: { duration: 0 } }
 };
 
-// --- Helper para URL (Versión Simple - Asume rutas en ProjectData empiezan con / y son relativas a public) ---
-const base = import.meta.env.BASE_URL || '/'; // No quites la barra final
+// --- Helper para URL (Versión Simple) ---
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+// --- AÑADIDO: Definiciones para el placeholder ---
+const placeholderBg = '#0a0f19'; // Color de fondo del placeholder
+const placeholderText = '#f1f1ee'; // Color de texto del placeholder
+// -------------------------------------------------
 const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Image`) => {
     if (!path) return placeholder;
-    // Verifica si la ruta ya es una URL absoluta o un placeholder
     if (path.startsWith('http') || path.startsWith('https://placehold.co')) {
         return path;
     }
-    // Asegura que la ruta relativa no empiece con '/' para evitar dobles barras al unir
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
-    // Une la base y la ruta relativa
-    return `${base}${imagePath}`;
+    return `${base}/${imagePath}`;
 };
 
 
@@ -55,7 +56,7 @@ const easeTo = (start, end, duration, onUpdate, onComplete) => {
     const animateStep = (now) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
       const currentValue = start + (end - start) * easedProgress;
       onUpdate(currentValue, easedProgress);
       if (progress < 1) { requestAnimationFrame(animateStep); }
