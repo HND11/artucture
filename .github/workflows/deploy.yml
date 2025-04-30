@@ -42,29 +42,29 @@ jobs:
           path: ./dist
           if-no-files-found: error # Añadido: Falla si ./dist está vacío o no existe
 
-    deploy:
-      name: Deploy
-      needs: build # Ensures 'build' job completes successfully first
-      runs-on: ubuntu-latest
-      if: github.ref == 'refs/heads/main' # Only run on pushes to the main branch
+  deploy:
+    name: Deploy
+    needs: build # Ensures 'build' job completes successfully first
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only run on pushes to the main branch
 
-      steps:
-        - name: Download artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: production-files
-            # No 'path' specified, files will be downloaded to the workspace root '.'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-files
+          # No 'path' specified, files will be downloaded to the workspace root '.'
 
-        # --- PASO DE DEPURACIÓN AJUSTADO ---
-        - name: Check downloaded files
-          run: |
-            echo "Checking contents after download (workspace root)..."
-            ls -R . # List everything in the root directory '.'
-            # El comando 'ls -R ./dist' fue eliminado porque la carpeta dist ya no existe aquí.
+      # --- PASO DE DEPURACIÓN AJUSTADO ---
+      - name: Check downloaded files
+        run: |
+          echo "Checking contents after download (workspace root)..."
+          ls -R . # List everything in the root directory '.'
+          # El comando 'ls -R ./dist' fue eliminado porque la carpeta dist ya no existe aquí.
 
-        - name: Deploy to GitHub Pages
-          uses: peaceiris/actions-gh-pages@v4
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            # --- CORREGIDO ---
-            publish_dir: . # Publish from the root directory where files were downloaded
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # --- CORREGIDO ---
+          publish_dir: . # Publish from the root directory where files were downloaded
