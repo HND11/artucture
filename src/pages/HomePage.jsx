@@ -25,9 +25,7 @@ const pageTransitionVariants = {
 };
 
 // --- Helper para URL (Versión Simple - Asume rutas en ProjectData empiezan con / y son relativas a public) ---
-const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, ''); // Obtiene base y quita la barra final si existe
-const placeholderBg = '#0a0f19';
-const placeholderText = '#f1f1ee';
+const base = import.meta.env.BASE_URL || '/'; // No quites la barra final
 const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Image`) => {
     if (!path) return placeholder;
     // Verifica si la ruta ya es una URL absoluta o un placeholder
@@ -37,7 +35,7 @@ const getImageUrl = (path, placeholder = `https://placehold.co/600x800/${placeho
     // Asegura que la ruta relativa no empiece con '/' para evitar dobles barras al unir
     const imagePath = path.startsWith('/') ? path.substring(1) : path;
     // Une la base y la ruta relativa
-    return `${base}/${imagePath}`;
+    return `${base}${imagePath}`;
 };
 
 
