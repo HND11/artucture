@@ -208,8 +208,8 @@ function HomePage() {
       {/* --- Secciones de Contenido --- */}
       <ScrollAnimatedSection className="container mx-auto px-6 sm:px-10 md:px-20 py-32 md:py-48 lg:py-64">
          <TextFeatureSection
-          title="Diseñamos Experiencias Únicas"
-          subtitle="Artucture: Diseñando sueños y construyendo hogares" // Subtítulo actualizado con eslogan [cite: 1]
+          title="Diseñando sueños y construyendo hogares"
+          subtitle="Artucture" // Subtítulo actualizado con eslogan [cite: 1]
           titleSize="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight"
           subtitleColor="text-[var(--text)]"
           subtitleSize="text-lg md:text-xl lg:text-2xl tracking-wide"

@@ -1,35 +1,27 @@
 // src/components/AsymmetricLayoutSection.jsx
 import { motion } from 'framer-motion';
 
-// --- CAMBIO PRINCIPAL ---
-// Helper para construir URL (Versión estandarizada)
-const placeholderBg = '#0a0f19'; // Color de fondo para placeholder
-const placeholderText = '#f1f1ee'; // Color de texto para placeholder
-const getImageUrl = (path, placeholder = `https://placehold.co/800x600/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Feature+Image`) => {
-  // Asegura que base no tenga / al final para evitar dobles barras
-  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-  if (!path) return placeholder;
-  // Si ya es absoluta (http) o placeholder, devolverla
-  if (path.startsWith('http') || path.startsWith('https://placehold.co')) {
-      return path;
-  }
-  // Asegura que la ruta relativa NO empiece con '/' porque la base ya podría tenerla o no
-  // y une la base y la ruta relativa asegurando una sola barra
-  const imagePath = path.startsWith('/') ? path.substring(1) : path;
-  return `${base}/${imagePath}`;
-};
-// --- FIN CAMBIO PRINCIPAL ---
+// --- ELIMINADO ---
+// Se quita la definición duplicada de getImageUrl de aquí.
+// Este componente ahora usará la URL que recibe directamente.
+// --- FIN ELIMINADO ---
 
 const AsymmetricLayoutSection = ({
-    imageUrl,
+    imageUrl, // Recibe la URL ya procesada desde HomePage
     text,
     imageSide = "left",
     className,
-    textClassName = "text-xl md:text-2xl lg:text-3xl leading-relaxed text-[--color-text-secondary]", // Ajustado tamaño
+    textClassName = "text-xl md:text-2xl lg:text-3xl leading-relaxed text-[--color-text-secondary]",
     imageClassName = "aspect-[4/3] md:aspect-auto"
 }) => {
   const imageOrder = imageSide === 'left' ? 'order-first' : 'md:order-last';
   const textOrder = imageSide === 'left' ? 'order-last' : 'md:order-first';
+
+  // Preparamos un placeholder por si imageUrl viene vacío o nulo, o para el onError
+  const placeholderBg = '#0a0f19';
+  const placeholderText = '#f1f1ee';
+  const placeholderUrl = `https://placehold.co/800x600/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Feature+Image`;
+
 
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 lg:gap-32 items-center ${className}`}>
@@ -42,12 +34,14 @@ const AsymmetricLayoutSection = ({
          transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <img
-            // Usa la función getImageUrl estandarizada
-            src={getImageUrl(imageUrl)}
-            alt="Feature image"
+            // --- CAMBIO CLAVE ---
+            // Usa directamente el prop 'imageUrl'. Si es nulo/vacío, usa el placeholder.
+            src={imageUrl || placeholderUrl}
+            // --- FIN CAMBIO CLAVE ---
+            alt="Feature image" // Considera pasar un alt text más descriptivo como prop
             className={`w-full h-full object-cover ${imageClassName}`}
-            // Opcional: Añadir onError para mostrar placeholder si falla la carga
-            onError={(e) => { e.target.src = getImageUrl(null); }}
+            // onError ahora simplemente pone el placeholder estándar
+            onError={(e) => { e.target.src = placeholderUrl; }}
         />
       </motion.div>
 
@@ -59,13 +53,12 @@ const AsymmetricLayoutSection = ({
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
       >
-        {/* Renderiza el texto como párrafo o como elemento si es un componente React */}
         {typeof text === 'string' ? (
           <p className={`${textClassName}`}>
             {text}
           </p>
         ) : (
-          <div className={textClassName}> {/* Envuelve el componente React en un div con las clases */}
+          <div className={textClassName}>
              {text}
           </div>
         )}
