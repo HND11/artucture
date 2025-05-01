@@ -1,5 +1,6 @@
 // src/pages/AboutPage.jsx
-// ACTUALIZADO: Visión restaurada al original, Misión ajustada a longitud similar.
+// ACTUALIZADO: Corregido error "placeholderBg is not defined" en getImageUrl.
+// Visión restaurada al original, Misión ajustada a longitud similar.
 // Layout de Historia ajustado (Título arriba). Sin padding extra al final.
 
 import { useEffect, useState } from 'react';
@@ -50,12 +51,16 @@ const itemFadeUpVariants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 
 const hoverTransition = { duration: 0.4, ease: "easeInOut" };
 
 // --- Helper URL ---
+// **CORRECCIÓN:** Declarar variables de placeholder ANTES de usarlas en el valor por defecto
+const placeholderBg = '#0a0f19';
+const placeholderText = '#f1f1ee';
+
 const getImageUrl = (path, placeholder = `https://placehold.co/200x200/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Team`) => {
-    const placeholderBg = '#0a0f19';
-    const placeholderText = '#f1f1ee';
-    if (!path) return placeholder;
+    // Ahora placeholderBg y placeholderText están definidas cuando se evalúa el placeholder por defecto
+
+    if (!path) return placeholder; // Si no hay path, devuelve el placeholder construido
     if (path.startsWith('http') || path.startsWith('https://placehold.co')) {
-        return path;
+        return path; // Si ya es absoluta o placeholder, devolverla tal cual
     }
     // Usa la versión simplificada que devuelve path relativo a la raíz
     return path.startsWith('/') ? path : `/${path}`;
@@ -95,7 +100,7 @@ function AboutPage() {
         animate="visible"
         exit="exit"
         variants={pageTransitionVariants}
-        className="min-h-screen font-sans antialiased bg-[var(--background)] text-[var(--text)]" // Removido pb-8
+        className="min-h-screen font-sans antialiased bg-[var(--background)] text-[var(--text)]" // Sin pb-8
     >
       <Header />
 
@@ -122,10 +127,9 @@ function AboutPage() {
           animate="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
-           {/* Layout de una sola columna */}
-           <div className="max-w-4xl mx-auto"> {/* Centrado y con ancho máximo */}
+           <div className="max-w-4xl mx-auto">
              <motion.h2
-                className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-12 md:mb-16 text-[var(--text)] text-center leading-tight" // Título centrado
+                className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-12 md:mb-16 text-[var(--text)] text-center leading-tight"
                 variants={itemFadeUpVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -133,15 +137,13 @@ function AboutPage() {
               >
                 Nuestra Trayectoria
               </motion.h2>
-
              <motion.div
-               className="space-y-6 md:space-y-8" // Espacio entre párrafos
+               className="space-y-6 md:space-y-8"
                variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
                initial="hidden"
                whileInView="visible"
                viewport={{ once: true, amount: 0.1 }}
              >
-                {/* Mapea los párrafos del resumen */}
                 {aboutData.historySummary.map((paragraph, index) => (
                   <motion.p key={index} className={readableTextStyle} variants={itemFadeUpVariants}>
                     {paragraph}
@@ -279,9 +281,9 @@ function AboutPage() {
                              loading="lazy"
                              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ${teamImagesLoaded ? 'opacity-100' : 'opacity-0'}`}
                              onError={(e) => {
-                               e.target.onerror = null;
-                               e.target.src = getImageUrl(null);
-                               e.target.style.opacity='1';
+                               e.target.onerror = null; // Previene loop infinito si el placeholder también falla
+                               e.target.src = getImageUrl(null); // Intenta cargar el placeholder
+                               e.target.style.opacity='1'; // Asegura que sea visible si carga
                              }}
                            />
                        </motion.div>
@@ -295,7 +297,7 @@ function AboutPage() {
       )}
 
       <Footer />
-    </motion.div> // <-- Cierre del motion.div principal
+    </motion.div>
   );
 }
 
