@@ -99,7 +99,7 @@ const ProjectPreview = ({
                 WebkitBackfaceVisibility: 'hidden'
               }}
             >
-              View
+              Ver más
             </motion.span>
           </motion.div>
         )}

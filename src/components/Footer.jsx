@@ -56,7 +56,6 @@ function Footer() {
              <li><a href="/" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Inicio</a></li>
              <li><a href="/about" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Sobre Nosotros</a></li>
              <li><a href="/projects" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Proyectos</a></li>
-             <li><a href="/contact" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Contacto</a></li>
            </ul>
          </div>
          {/* Columna 3 */}
@@ -75,7 +74,7 @@ function Footer() {
            <div className="flex space-x-4">
              {/* Asumiendo una URL de Instagram, si no, quitar o dejar como placeholder */}
              <a
-               href="URL_DE_TU_INSTAGRAM_AQUI" // Reemplazar con la URL real
+               href="https://www.instagram.com/artucture/" // Reemplazar con la URL real
                target="_blank"
                rel="noopener noreferrer"
                aria-label="Instagram de Artucture"

@@ -1,5 +1,7 @@
 // src/pages/ProjectsPage.jsx
 // ACTUALIZADO: Se deshabilita la animación de salida de página al hacer clic en imagen
+// ACTUALIZADO: Se REMUEVE el scrollToTop al hacer click en imagen
+// ACTUALIZADO: Añadidos degradados al clon de la imagen para transición más seamless
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -58,27 +60,8 @@ const getImageUrl = (path, placeholder = `https://placehold.co/600x600/${placeho
   return `${base}${imagePath}`;
 };
 
-// --- Funciones Auxiliares de Animación y Scroll ---
-const easeTo = (start, end, duration, onUpdate, onComplete) => {
-    const startTime = performance.now();
-    const animateStep = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-      const currentValue = start + (end - start) * easedProgress;
-      onUpdate(currentValue, easedProgress);
-      if (progress < 1) { requestAnimationFrame(animateStep); }
-      else { onComplete?.(); }
-    };
-    requestAnimationFrame(animateStep);
-};
-
-const scrollToTop = (callback) => {
-    const scrollTop = window.scrollY;
-    if (scrollTop <= 0) { callback?.(); return; }
-    const duration = Math.min(800, Math.max(400, scrollTop * 0.8));
-    easeTo( scrollTop, 0, duration, (current) => { window.scrollTo(0, current); }, callback );
-};
+// --- Funciones Auxiliares de Animación y Scroll (NO SE USAN AHORA) ---
+/* ... scrollToTop y easeTo comentadas o eliminadas ... */
 
 function ProjectsPage() {
   useSmoothScroll(true, 0.06);
@@ -102,6 +85,7 @@ function ProjectsPage() {
     const rect = imageElement.getBoundingClientRect();
     const currentOriginalImageRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
 
+    // --- MODIFICACIÓN: No hacer scroll to top ---
     const processImageExpand = () => {
         disableScroll(); // Disable scroll during animation
         setOriginalImageRect(currentOriginalImageRect);
@@ -110,16 +94,18 @@ function ProjectsPage() {
         // Retrasar navegación para permitir animación del clon
         setTimeout(() => {
             // Pass image source and origin rect in state for potential shared element transition
-            navigate(pageTarget, { state: { imageSrc: getImageUrl(projectToNavigate.image || projectToNavigate.thumbnail), originRect: currentOriginalImageRect } });
+            navigate(pageTarget, { state: {
+                imageSrc: getImageUrl(projectToNavigate.image || projectToNavigate.thumbnail),
+                originRect: currentOriginalImageRect,
+                // originLayoutId: `project-image-${projectId}` // Example layoutId
+             } });
+            // Re-enable scroll slightly after navigation starts, or handle in detail page mount/unmount
+            // setTimeout(enableScroll, 700); // Example, timing might need adjustment
         }, 600); // Duration should match animation
     };
 
-    // Scroll to top before expanding if not already there
-    if (window.scrollY > 10) {
-       scrollToTop(processImageExpand);
-    } else {
-       processImageExpand();
-    }
+    // Llamar directamente a processImageExpand
+    processImageExpand();
 
   }, [expandedIndex, navigate, disableScroll]); // Dependencies for the callback
 
@@ -149,7 +135,8 @@ function ProjectsPage() {
     };
 
     preloadImages();
-    window.scrollTo(0, 0); // Scroll to top on mount
+    // MANTIENE: Scroll to top on initial mount of this page
+    window.scrollTo(0, 0);
 
     // Cleanup function to re-enable scroll when component unmounts
     return () => {
@@ -225,6 +212,7 @@ function ProjectsPage() {
                 assignRef={assignRef} // Pass ref assignment function
                 hoverTransition={hoverTransition}
                 forceLoad={index < 2} // Eager load first few images
+                // layoutId={`project-image-${project.id}`} // Add layoutId for shared transition
               />
             </motion.div>
           ))}
@@ -254,6 +242,7 @@ function ProjectsPage() {
                       assignRef={assignRef}
                       hoverTransition={hoverTransition}
                       forceLoad={columnIndex === 0} // Eager load first image in column
+                      // layoutId={`project-image-${project.id}`} // Add layoutId
                     />
                   </motion.div>
                 );
@@ -281,6 +270,7 @@ function ProjectsPage() {
                       assignRef={assignRef}
                       hoverTransition={hoverTransition}
                       forceLoad={columnIndex === 0}
+                      // layoutId={`project-image-${project.id}`} // Add layoutId
                     />
                   </motion.div>
                 );
@@ -295,7 +285,8 @@ function ProjectsPage() {
        <AnimatePresence>
           {expandedIndex !== null && originalImageRect && projectList[expandedIndex] && (
               <motion.div
-                className="fixed z-[60] pointer-events-none bg-[var(--background)] origin-top" // High z-index, covers page
+                // --- MODIFICACIÓN: Añadido overflow-hidden ---
+                className="fixed z-[60] pointer-events-none bg-[var(--background)] origin-top overflow-hidden" // High z-index, covers page
                 initial={{ // Start from original image position
                   left: originalImageRect.x,
                   top: originalImageRect.y,
@@ -314,8 +305,9 @@ function ProjectsPage() {
                     ease: [0.16, 1, 0.3, 1] // Custom easing
                   }
                 }}
+                // layoutId={`project-image-${projectList[expandedIndex].id}`} // Apply layoutId if using shared transition
               >
-                {/* Image inside the expanding div */}
+                {/* Imagen Clonada */}
                 <motion.img
                   // Use image or thumbnail for source
                   src={getImageUrl(projectList[expandedIndex].image || projectList[expandedIndex].thumbnail)}
@@ -329,7 +321,22 @@ function ProjectsPage() {
                       ease: [0.16, 1, 0.3, 1]
                     }
                   }}
+                  // layoutId={`project-image-${projectList[expandedIndex].id}-img`} // Optional inner image layoutId
                 />
+
+                {/* --- MODIFICACIÓN: Degradados animados --- */}
+                <motion.div
+                  className="absolute inset-0 z-10 pointer-events-none" // Colocado sobre la imagen
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { duration: 0.3, delay: 0.3 } }} // Aparece en la 2ª mitad de la transición
+                >
+                    {/* Degradado Superior */}
+                    <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[var(--background)]/60 via-[var(--background)]/20 to-transparent"></div>
+                    {/* Degradado Inferior */}
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[var(--background)] via-[var(--background)]/50 to-transparent"></div>
+                </motion.div>
+                 {/* --- FIN MODIFICACIÓN --- */}
+
               </motion.div>
           )}
       </AnimatePresence>
@@ -339,7 +346,8 @@ function ProjectsPage() {
 }
 
 // --- Componente ProjectCard ---
-function ProjectCard({ project, index, getImageUrl, onClick, assignRef, hoverTransition, forceLoad }) {
+// (No changes needed in ProjectCard itself for this specific modification)
+function ProjectCard({ project, index, getImageUrl, onClick, assignRef, hoverTransition, forceLoad, layoutId }) {
   const cardRef = useRef(null); // Ref for the image div itself
   const [imageLoaded, setImageLoaded] = useState(forceLoad); // State for image loading status
 
@@ -355,38 +363,32 @@ function ProjectCard({ project, index, getImageUrl, onClick, assignRef, hoverTra
       const img = new Image();
       img.src = getImageUrl(project.image || project.thumbnail);
       img.onload = () => setImageLoaded(true);
-      // Optional: handle error
-      // img.onerror = () => console.error("Failed to preload image:", img.src);
     }
   }, [forceLoad, imageLoaded, project, getImageUrl]); // Dependencies
 
   return (
-    // Click handler on the outer div, passes index and the image element ref
     <div className="block group cursor-pointer" onClick={() => cardRef.current && onClick(index, cardRef.current)}>
-      {/* Motion div for the image container */}
       <motion.div
         ref={setRefs} // Assign refs here
         className="overflow-hidden rounded-4xl shadow-lg group-hover:shadow-2xl mb-4 md:mb-6 aspect-square relative"
         whileHover={{ scale: 0.97 }} // Shrink container slightly on hover
         transition={hoverTransition}
+        layoutId={layoutId} // Apply layoutId if passed
       >
-        {/* Motion image */}
         <motion.img
           src={getImageUrl(project.image || project.thumbnail)}
           alt={project.title}
-          // Fade in image when loaded
           className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setImageLoaded(true)} // Set loaded state on load
           whileHover={{ scale: 1.05 }} // Zoom image slightly on hover
           transition={hoverTransition}
-          loading={forceLoad ? "eager" : "lazy"} // Eager load first few, lazy load others
+          loading={forceLoad ? "eager" : "lazy"}
+          // layoutId={layoutId ? `${layoutId}-img` : undefined} // Optionally, different layoutId for img
         />
-        {/* Placeholder while image is loading */}
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gray-200/50 animate-pulse"></div>
         )}
       </motion.div>
-      {/* Text content below the image */}
       <div className="p-2">
         <h3 className={`text-base ${secondaryTextColorClass} uppercase tracking-wider mb-1`}>{project.projectName}</h3>
         <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-[var(--text)] leading-tight">{project.title}</h2>
@@ -394,5 +396,6 @@ function ProjectCard({ project, index, getImageUrl, onClick, assignRef, hoverTra
     </div>
   );
 }
+
 
 export default ProjectsPage;

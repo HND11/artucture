@@ -111,9 +111,9 @@ const Header = () => {
   const location = useLocation();
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "About Us", path: "/about" },
-    { name: "Projects", path: "/projects" },
+    { name: "Inicio", path: "/" },
+    { name: "Sobre nosotros", path: "/about" },
+    { name: "Proyectos", path: "/projects" },
   ];
 
   useEffect(() => {

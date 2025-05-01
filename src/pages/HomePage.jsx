@@ -1,5 +1,6 @@
 // src/pages/HomePage.jsx
 // VERSIÓN FINAL: Filosofía actualizada desde enterprise data.txt
+// ACTUALIZADO: Añadidos degradados al clon de la imagen para transición más seamless
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -101,10 +102,16 @@ function HomePage() {
         setExpandedIndex(originalIndex);
         setTimeout(() => {
             const pageTarget = `/project/${projectId}`;
-            navigate(pageTarget, { state: { imageSrc: getImageUrl(projectToNavigate.image), originRect: currentOriginalImageRect } });
-        }, 600);
+            // Pass image source and potentially layoutId if using shared layout transitions
+            navigate(pageTarget, { state: {
+                imageSrc: getImageUrl(projectToNavigate.image),
+                originRect: currentOriginalImageRect,
+                // originLayoutId: `project-image-${projectId}` // Example layoutId
+             } });
+        }, 600); // Duration of clone animation
     };
 
+    // HomePage still scrolls to top before animating
     if (isScrolledDown) {
         scrollToTop(processImageExpand);
     } else {
@@ -198,9 +205,11 @@ function HomePage() {
         <div className="h-screen w-screen relative flex items-center justify-center overflow-hidden py-4">
           <InfiniteCarousel
             images={fullCarouselImages}
-            onImageClick={handleImageClick}
-            expandedIndex={expandedIndex}
+            onImageClick={handleImageClick} // Pass the click handler
+            expandedIndex={expandedIndex} // Pass expanded state if needed by carousel itself
             className="z-10"
+            // Pass project IDs if InfiniteCarousel needs them for layoutId
+            // projectIds={carouselImagesData.map(p => p.id)}
           />
         </div>
       )}
@@ -209,7 +218,7 @@ function HomePage() {
       <ScrollAnimatedSection className="container mx-auto px-6 sm:px-10 md:px-20 py-32 md:py-48 lg:py-64">
          <TextFeatureSection
           title="Diseñando sueños y construyendo hogares"
-          subtitle="Artucture" // Subtítulo actualizado con eslogan [cite: 1]
+          subtitle="Artucture" // Subtítulo actualizado con eslogan
           titleSize="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight"
           subtitleColor="text-[var(--text)]"
           subtitleSize="text-lg md:text-xl lg:text-2xl tracking-wide"
@@ -222,7 +231,7 @@ function HomePage() {
            <motion.div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-[var(--secondary)]/50 via-[var(--secondary)]/10 to-transparent -z-10" style={{ y: parallaxY }} />
            <AsymmetricLayoutSection
               imageUrl={getImageUrl(projectList[1]?.image)}
-              text={ // Texto de misión/filosofía actualizado [cite: 1, 2, 3]
+              text={ // Texto de misión/filosofía actualizado
                 <motion.p ref={philosophyTextRef} className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]">
                   Transformamos los sueños de nuestros clientes en espacios únicos y extraordinarios a través de un diseño innovador, funcional y sostenible. Creamos soluciones arquitectónicas personalizadas que integran tecnología moderna, respeto por el medio ambiente y armonía entre el hábitat natural y social.
                 </motion.p>
@@ -250,7 +259,7 @@ function HomePage() {
         <ScrollAnimatedSection animation="slideInLeft" className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40 overflow-hidden">
            <AsymmetricLayoutSection
              imageUrl={getImageUrl(projectList[3]?.image)}
-             text="Buscamos aprovechar las características únicas de cada lugar para diseñar ambientes visualmente impactantes, prácticos y pensados para perdurar." // Texto adicional de la misión [cite: 3]
+             text="Buscamos aprovechar las características únicas de cada lugar para diseñar ambientes visualmente impactantes, prácticos y pensados para perdurar." // Texto adicional de la misión
              imageSide="left"
              textClassName="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-[var(--text)]"
            />
@@ -267,13 +276,14 @@ function HomePage() {
            fullCarouselImages[expandedIndex % fullCarouselImages.length] && (
               <motion.div
                 key={`cloned-image-${expandedIndex}`}
-                className="fixed z-[60] pointer-events-none bg-[var(--background)] origin-top"
+                // --- MODIFICACIÓN: Añadido overflow-hidden ---
+                className="fixed z-[60] pointer-events-none bg-[var(--background)] origin-top overflow-hidden"
                 initial={{
                   left: originalImageRect.x,
                   top: originalImageRect.y,
                   width: originalImageRect.width,
                   height: originalImageRect.height,
-                  borderRadius: '8px',
+                  borderRadius: '8px', // Adjust if carousel images have different border radius
                 }}
                 animate={{
                   left: 0,
@@ -283,14 +293,31 @@ function HomePage() {
                   borderRadius: '0px',
                   transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
                 }}
+                // layoutId={`project-image-${carouselImagesData[expandedIndex % carouselImagesData.length].id}`} // Apply layoutId if using shared transition
               >
+                {/* Imagen Clonada */}
                 <motion.img
                   src={fullCarouselImages[expandedIndex % fullCarouselImages.length]}
                   alt="Expanding project"
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-top" // Ensure object-fit matches target if needed
                   initial={{ scale: 1 }}
                   animate={{ scale: 1, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
+                  // layoutId={`project-image-${carouselImagesData[expandedIndex % carouselImagesData.length].id}-img`} // Optional inner image layoutId
                 />
+
+                {/* --- MODIFICACIÓN: Degradados animados --- */}
+                <motion.div
+                  className="absolute inset-0 z-10 pointer-events-none" // Colocado sobre la imagen
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { duration: 0.3, delay: 0.3 } }} // Aparece en la 2ª mitad de la transición
+                >
+                    {/* Degradado Superior */}
+                    <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[var(--background)]/60 via-[var(--background)]/20 to-transparent"></div>
+                    {/* Degradado Inferior */}
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[var(--background)] via-[var(--background)]/50 to-transparent"></div>
+                </motion.div>
+                 {/* --- FIN MODIFICACIÓN --- */}
+
               </motion.div>
           )}
       </AnimatePresence>
