@@ -1,5 +1,5 @@
 // src/pages/AboutPage.jsx
-// ACTUALIZADO: Reemplazadas pageVariants con pageTransitionVariants suaves
+// ACTUALIZADO: Datos de la empresa integrados desde enterprise data.txt (CITAS REMOVIDAS DEL TEXTO)
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -10,26 +10,9 @@ import useSmoothScroll from '../hooks/useSmoothScroll';
 
 // --- Variantes de Transición de Página Suaves ---
 const pageTransitionVariants = {
-  hidden: {
-    opacity: 0,
-    y: 20 // Empieza ligeramente abajo
-  },
-  visible: {
-    opacity: 1,
-    y: 0, // Se mueve a su posición final
-    transition: {
-      duration: 0.6, // Duración un poco más larga
-      ease: "easeInOut" // <-- CURVA CORREGIDA (usando predefinida)
-    }
-  },
-  exit: {
-    opacity: 0,
-    y: -20, // Se mueve ligeramente hacia arriba al salir
-    transition: {
-      duration: 0.4, // Salida más rápida
-      ease: "easeInOut" // <-- CURVA CORREGIDA (usando predefinida)
-    }
-  }
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeInOut" } },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: "easeInOut" } }
 };
 
 // --- Componentes Placeholder ---
@@ -43,17 +26,20 @@ const TextFeatureSection = ({ title, subtitle, titleSize, subtitleSize, subtitle
   </div>
 );
 
-// --- Placeholder data ---
+// --- Datos de la empresa actualizados (Sin citas en el texto) ---
 const aboutData = {
-    history: "Fundada en 2010 con la visión de fusionar arte y funcionalidad arquitectónica, Artucture ha crecido desde un pequeño estudio hasta convertirse en un referente en diseño innovador. Nuestro viaje ha estado marcado por la pasión por la excelencia y la colaboración constante con nuestros clientes para materializar sus sueños.",
-    mission: "Crear espacios inspiradores y funcionales que mejoren la vida de las personas y respeten el entorno, a través de un diseño excepcional y una ejecución impecable.",
-    vision: "Ser líderes reconocidos a nivel internacional en diseño arquitectónico y visual, impulsando la innovación y estableciendo nuevos estándares de calidad y creatividad.",
-    values: ["Creatividad", "Integridad", "Excelencia", "Colaboración", "Sostenibilidad"],
+    history: "La historia comenzó cuando Hendrick y Cristal decidieron que ya era el momento de construir la casa de sus sueños. Más que un lugar donde vivir, buscaban crear un espacio que reflejara sus ideales: funcionalidad, estética y, sobre todo, calidez. Fue durante este proceso de imaginar y diseñar su hogar que encontraron la inspiración para lanzar su propio estudio. Así nació la idea de Artucture, una empresa dedicada a la arquitectura y el diseño de interiores. El hogar que soñaban era un espacio fluido, lleno de luz natural, materiales orgánicos y detalles cuidadosamente diseñados para ser visualmente atractivos, prácticos y duraderos. A medida que avanzaban en la planificación y construcción, su enfoque único comenzó a captar la atención de familiares y amigos. Lo que inició como simples preguntas y solicitudes de consejos pronto se transformó en encargos de remodelaciones y proyectos completos. Así, un sueño personal se convirtió en una misión profesional: ayudar a otros a construir los espacios que siempre habían imaginado. Desde el inicio, Hendrick y Cristal combinaron perfectamente sus talentos. Hendrick, con su precisión técnica y su enfoque meticuloso en la estructura y planificación, complementaba el estilo creativo y artístico de Cristal, quien tiene un don para transformar cualquier espacio en un lugar vibrante y lleno de vida. Esta sinergia les permitió, el 7 de marzo de 2019, construir Artucture, una empresa que no solo diseña hogares, sino que crea ambientes que cuentan historias, reflejando la esencia de quienes los habitan. Hoy, Artucture es un referente en el diseño de interiores y la arquitectura moderna. Sus proyectos abarcan desde hogares particulares hasta espacios comerciales, todos caracterizados por un enfoque innovador y sostenible. La empresa se distingue por integrar tecnología avanzada, como renders 3D y realidad virtual, y por trabajar de la mano con sus clientes para asegurar que cada detalle sea único y significativo. Hendrick y Cristal continúan trabajando codo a codo, diseñando espacios que son mucho más que funcionales o bellos: son extensiones de los sueños y aspiraciones de quienes los habitan. Y así, la historia de Artucture sigue evolucionando, construyendo no solo casas, sino también sueños que perduran en el tiempo.",
+    mission: "Transformar los sueños de nuestros clientes en espacios únicos y extraordinarios a través de un diseño innovador, funcional y sostenible. Nos especializamos en crear soluciones arquitectónicas personalizadas que integren tecnología moderna, respeto por el medio ambiente, y un enfoque en la armonía entre el hábitat natural y social. Buscamos aprovechar las características únicas de cada lugar para diseñar ambientes que sean visualmente impactantes, prácticos y pensados para perdurar en el tiempo.",
+    vision: "Convertirnos en la empresa líder en arquitectura y diseño de interiores en la República Dominicana, siendo la primera opción tanto para quienes desean construir el hogar de sus sueños como para empresas que buscan proyectos innovadores, funcionales y estéticamente impactantes.",
+    values: ["Esfuerzo", "Colaboración", "Pasión", "Responsabilidad", "Servicio"],
     team: [
-        { name: "Elena Montero", role: "CEO & Lead Architect", image: "/team/elena.jpg" },
-        { name: "James Wilson", role: "Creative Director", image: "/team/james.jpg" },
-        { name: "Marco Pérez", role: "Senior Project Manager", image: "/team/marco.jpg" },
-        { name: "Sophia Chen", role: "Lead Interior Designer", image: "/team/sophia.jpg" },
+        { name: "Hendrick Gómez", role: "Co-Fundador, Director General (CEO), Arquitecto Principal", image: "/team/hendrick_gomez.jpg" },
+        { name: "Cristal Corniel", role: "Co-Fundadora, Directora de Diseño Interior", image: "/team/cristal_corniel.jpg" },
+        { name: "Amanda Hernández", role: "Gerente de Proyectos Senior / Coordinadora General", image: "/team/amanda_hernandez.jpg" },
+        { name: "Angel Suárez", role: "Director de Operaciones / Líder de Construcción", image: "/team/angel_suarez.jpg" },
+        { name: "Jeremy Antigua", role: "Arquitecto Senior / Líder de Diseño Arquitectónico", image: "/team/jeremy_antigua.jpg" },
+        { name: "Isaac Jiménez", role: "Arquitecto Junior / Asistente de Diseño", image: "/team/isaac_jimenez.jpg" },
+        // Añadir más miembros según la lista completa si es necesario
     ]
 };
 
@@ -91,13 +77,13 @@ function AboutPage() {
           const img = new Image();
           img.src = src;
           img.onload = resolve;
-          img.onerror = resolve; // Continue even if image fails to load
+          img.onerror = resolve;
         });
       });
 
       Promise.all(imagePromises)
         .then(() => setTeamImagesLoaded(true))
-        .catch(() => setTeamImagesLoaded(true)); // Ensure state updates even if promises reject
+        .catch(() => setTeamImagesLoaded(true));
     };
 
     preloadTeamImages();
@@ -106,11 +92,11 @@ function AboutPage() {
 
   return (
     <motion.div
-        key="about-page" // Clave única para AnimatePresence
+        key="about-page"
         initial="hidden"
         animate="visible"
         exit="exit"
-        variants={pageTransitionVariants} // Usa las nuevas variantes
+        variants={pageTransitionVariants}
         className="min-h-screen font-sans antialiased bg-[var(--background)] text-[var(--text)]"
     >
       <Header />
@@ -120,7 +106,7 @@ function AboutPage() {
         className="pt-32 pb-24 md:pt-48 md:pb-32 bg-[var(--secondary)]/50"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }} // Mantenemos esta animación interna
+        transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
       >
         <div className="container mx-auto px-6 sm:px-10 md:px-20 text-center">
           <h1 className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-[var(--text)]`}>Sobre Nosotros</h1>
@@ -251,13 +237,10 @@ function AboutPage() {
                              src={getImageUrl(member.image)}
                              alt={member.name}
                              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-300 ${teamImagesLoaded ? 'opacity-100' : 'opacity-0'}`}
-                             onLoad={() => {
-                               if (index === aboutData.team.length - 1) {
-                                 setTeamImagesLoaded(true);
-                               }
-                             }}
                              onError={(e) => {
-                               e.target.style.opacity='0';
+                               e.target.onerror = null;
+                               e.target.src = getImageUrl(null);
+                               e.target.style.opacity='1';
                                e.target.parentElement.style.backgroundColor = 'var(--secondary)';
                              }}
                            />

@@ -1,5 +1,5 @@
 // src/components/Footer.jsx
-// ACTUALIZADO: Logo de fondo alineado abajo
+// ACTUALIZADO: Logo de fondo alineado abajo y datos de contacto actualizados
 
 import React from 'react';
 // Asegúrate de importar tu componente Logo
@@ -42,19 +42,17 @@ function Footer() {
     >
       {/* Contenido principal del Footer (columnas) */}
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-         {/* Columnas... (sin cambios) */}
          {/* Columna 1 */}
          <div className="space-y-4">
            <h3 className="text-lg font-semibold text-[var(--text)]">Artucture</h3>
            <p className="text-sm">
-             Creando espacios inspiradores y funcionales. Arquitectura y diseño que transforman.
+             Diseñando sueños y construyendo hogares. {/* Eslogan actualizado */}
            </p>
          </div>
          {/* Columna 2 */}
          <div className="space-y-4">
            <h3 className="text-lg font-semibold text-[var(--text)]">Explora</h3>
            <ul className="space-y-2 text-sm">
-             {/* Quitamos hover:bg-transparent, usamos la regla CSS global */}
              <li><a href="/" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Inicio</a></li>
              <li><a href="/about" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Sobre Nosotros</a></li>
              <li><a href="/projects" className={`${footerHoverTextColorClass} transition-colors duration-200`}>Proyectos</a></li>
@@ -65,18 +63,19 @@ function Footer() {
          <div className="space-y-4">
            <h3 className="text-lg font-semibold text-[var(--text)]">Contacto</h3>
            <p className="text-sm">
-             <a href="mailto:tuemail@artucture.com" className={`${footerHoverTextColorClass} transition-colors duration-200`}>tuemail@artucture.com</a>
+             <a href="mailto:contacto@artucture.com" className={`${footerHoverTextColorClass} transition-colors duration-200`}>contacto@artucture.com</a> {/* Email actualizado */}
            </p>
            <p className="text-sm">
-             <a href="tel:+1809XXXXXXX" className={`${footerHoverTextColorClass} transition-colors duration-200`}>+1 809 XXX XXXX</a>
+             <a href="tel:+18298792507" className={`${footerHoverTextColorClass} transition-colors duration-200`}>+1 (829)-879-2507</a> {/* Teléfono actualizado */}
            </p>
          </div>
          {/* Columna 4 */}
          <div className="space-y-4">
            <h3 className="text-lg font-semibold text-[var(--text)]">Síguenos</h3>
            <div className="flex space-x-4">
+             {/* Asumiendo una URL de Instagram, si no, quitar o dejar como placeholder */}
              <a
-               href="URL_DE_TU_INSTAGRAM_AQUI"
+               href="URL_DE_TU_INSTAGRAM_AQUI" // Reemplazar con la URL real
                target="_blank"
                rel="noopener noreferrer"
                aria-label="Instagram de Artucture"
@@ -96,16 +95,14 @@ function Footer() {
         `}
       >
         <p className="text-center md:text-left">
-          © {new Date().getFullYear()} Artucture. Todos los derechos reservados.
+          © {new Date().getFullYear()} Artucture SRL. Todos los derechos reservados. {/* Añadido SRL */}
         </p>
         <span className="hidden md:block"></span>
       </div>
 
       {/* --- Logo Grande de Fondo (Ajustado) --- */}
       <div className="absolute inset-0 z-0 flex items-end justify-center pointer-events-none overflow-hidden">
-         {/* ^^^^^^^^^ Cambiado de items-center a items-end */}
-         {/* Ajusta la altura (h-32, h-40, h-48) y opacidad según necesites */}
-        <Logo className={`w-auto h-40 ${backgroundLogoColorClass}`} /> {/* Mantén el tamaño y color */}
+         <Logo className={`w-auto h-40 ${backgroundLogoColorClass}`} />
       </div>
       {/* --- FIN: Logo Grande de Fondo --- */}
 
