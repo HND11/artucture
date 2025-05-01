@@ -1,6 +1,6 @@
 // src/pages/AboutPage.jsx
-// ACTUALIZADO: Datos de la empresa integrados desde enterprise data.txt (CITAS REMOVIDAS DEL TEXTO)
-// MODIFICADO: Ajustes estéticos para mejor manejo de texto y balance Misión/Visión.
+// ACTUALIZADO: Visión restaurada al original, Misión ajustada a longitud similar.
+// Layout de Historia ajustado (Título arriba). Sin padding extra al final.
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -17,21 +17,25 @@ const pageTransitionVariants = {
 };
 
 // --- Clases de Estilo Reutilizables ---
-// Se aumentó la transparencia para un contraste más suave
 const secondaryTextColorClass = "text-[color:color-mix(in_srgb,_var(--text),_transparent_35%)]";
 const borderColorClass = "border-[color:color-mix(in_srgb,_var(--text),_transparent_90%)]";
 const valuesHoverBg = "hover:bg-[color:color-mix(in_srgb,_var(--secondary),_transparent_20%)]";
-// Clase para mejorar legibilidad en textos largos
-const readableTextStyle = `text-xl md:text-2xl ${secondaryTextColorClass} leading-relaxed md:leading-loose`; // Aumentado line-height
+const readableTextStyle = `text-xl md:text-2xl ${secondaryTextColorClass} leading-relaxed md:leading-loose`;
 
 // --- Datos de la empresa actualizados ---
 const aboutData = {
-    history: "La historia comenzó cuando Hendrick y Cristal decidieron que ya era el momento de construir la casa de sus sueños. Más que un lugar donde vivir, buscaban crear un espacio que reflejara sus ideales: funcionalidad, estética y, sobre todo, calidez. Fue durante este proceso de imaginar y diseñar su hogar que encontraron la inspiración para lanzar su propio estudio. Así nació la idea de Artucture, una empresa dedicada a la arquitectura y el diseño de interiores. El hogar que soñaban era un espacio fluido, lleno de luz natural, materiales orgánicos y detalles cuidadosamente diseñados para ser visualmente atractivos, prácticos y duraderos. A medida que avanzaban en la planificación y construcción, su enfoque único comenzó a captar la atención de familiares y amigos. Lo que inició como simples preguntas y solicitudes de consejos pronto se transformó en encargos de remodelaciones y proyectos completos. Así, un sueño personal se convirtió en una misión profesional: ayudar a otros a construir los espacios que siempre habían imaginado. Desde el inicio, Hendrick y Cristal combinaron perfectamente sus talentos. Hendrick, con su precisión técnica y su enfoque meticuloso en la estructura y planificación, complementaba el estilo creativo y artístico de Cristal, quien tiene un don para transformar cualquier espacio en un lugar vibrante y lleno de vida. Esta sinergia les permitió, el 7 de marzo de 2019, construir Artucture, una empresa que no solo diseña hogares, sino que crea ambientes que cuentan historias, reflejando la esencia de quienes los habitan. Hoy, Artucture es un referente en el diseño de interiores y la arquitectura moderna. Sus proyectos abarcan desde hogares particulares hasta espacios comerciales, todos caracterizados por un enfoque innovador y sostenible. La empresa se distingue por integrar tecnología avanzada, como renders 3D y realidad virtual, y por trabajar de la mano con sus clientes para asegurar que cada detalle sea único y significativo. Hendrick y Cristal continúan trabajando codo a codo, diseñando espacios que son mucho más que funcionales o bellos: son extensiones de los sueños y aspiraciones de quienes los habitan. Y así, la historia de Artucture sigue evolucionando, construyendo no solo casas, sino también sueños que perduran en el tiempo.", //
-    mission: "Transformar los sueños de nuestros clientes en espacios únicos y extraordinarios a través de un diseño innovador, funcional y sostenible. Nos especializamos en crear soluciones arquitectónicas personalizadas que integren tecnología moderna, respeto por el medio ambiente, y un enfoque en la armonía entre el hábitat natural y social. Buscamos aprovechar las características únicas de cada lugar para diseñar ambientes que sean visualmente impactantes, prácticos y pensados para perdurar en el tiempo.", //
-    // Visión expandida para balancear longitud con Misión
-    vision: "Convertirnos en la empresa líder en arquitectura y diseño de interiores en la República Dominicana, siendo la primera opción tanto para quienes desean construir el hogar de sus sueños como para empresas que buscan proyectos innovadores, funcionales y estéticamente impactantes. Aspiramos a ser reconocidos por nuestra excelencia, creatividad y el impacto positivo que generamos en cada espacio que diseñamos, consolidando un legado de calidad y satisfacción del cliente.", // Texto modificado
-    values: ["Esfuerzo", "Colaboración", "Pasión", "Responsabilidad", "Servicio"], //
-    team: [ //
+    historySummary: [ // Historia resumida en párrafos
+        "Todo comenzó con un sueño personal: Hendrick y Cristal buscando construir su propio hogar, un espacio que reflejara funcionalidad, estética y calidez. Durante ese proceso creativo, descubrieron la inspiración para fundar Artucture, su propio estudio de arquitectura y diseño de interiores.",
+        "Lo que inició como consejos a familiares y amigos pronto evolucionó. Su visión única —espacios fluidos, luz natural, materiales orgánicos y diseño práctico y duradero— captó la atención, transformando su sueño personal en una misión profesional: ayudar a otros a materializar los espacios que siempre imaginaron.",
+        "La sinergia fue clave. La precisión técnica de Hendrick complementó el estilo creativo y artístico de Cristal. Juntos, el 7 de marzo de 2019, dieron vida a Artucture, una empresa que va más allá de diseñar hogares; crea ambientes que cuentan historias y reflejan la esencia de quienes los habitan.",
+        "Hoy, Artucture es un referente en diseño y arquitectura moderna en la República Dominicana. Desde hogares hasta espacios comerciales, cada proyecto se distingue por su enfoque innovador, sostenible y la integración de tecnología como renders 3D y RV, siempre trabajando de cerca con el cliente para asegurar que cada detalle sea único y significativo."
+    ],
+    // --- MISIÓN (Ajustada a longitud similar a Visión original) ---
+    mission: "Transformar los sueños de nuestros clientes en espacios únicos y extraordinarios a través de un diseño innovador, funcional y sostenible. Creamos soluciones arquitectónicas personalizadas que integran tecnología moderna, respeto ambiental y armonía entre hábitat natural y social.",
+    // --- VISIÓN (Restaurada al texto original de enterprise data.txt) ---
+    vision: "Convertirnos en la empresa líder en arquitectura y diseño de interiores en la República Dominicana, siendo la primera opción tanto para quienes desean construir el hogar de sus sueños como para empresas que buscan proyectos innovadores, funcionales y estéticamente impactantes.",
+    values: ["Esfuerzo", "Colaboración", "Pasión", "Responsabilidad", "Servicio"],
+    team: [
         { name: "Hendrick Gómez", role: "Co-Fundador, Director General (CEO), Arquitecto Principal", image: "/team/hendrick_gomez.jpg" },
         { name: "Cristal Corniel", role: "Co-Fundadora, Directora de Diseño Interior", image: "/team/cristal_corniel.jpg" },
         { name: "Amanda Hernández", role: "Gerente de Proyectos Senior / Coordinadora General", image: "/team/amanda_hernandez.jpg" },
@@ -46,16 +50,17 @@ const itemFadeUpVariants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 
 const hoverTransition = { duration: 0.4, ease: "easeInOut" };
 
 // --- Helper URL ---
-const base = import.meta.env.BASE_URL || '/';
-const placeholderBg = '#0a0f19';
-const placeholderText = '#f1f1ee';
 const getImageUrl = (path, placeholder = `https://placehold.co/200x200/${placeholderBg.substring(1)}/${placeholderText.substring(1)}?text=Team`) => {
+    const placeholderBg = '#0a0f19';
+    const placeholderText = '#f1f1ee';
     if (!path) return placeholder;
-    const imagePath = path.startsWith('/') ? path.substring(1) : path;
-    const finalPath = imagePath || placeholder;
-    // Asegura que la base URL se añade correctamente incluso si ya existe en el path
-    return finalPath.startsWith('http') ? finalPath : `${base}${imagePath}`.replace(/\/+/g, '/');
+    if (path.startsWith('http') || path.startsWith('https://placehold.co')) {
+        return path;
+    }
+    // Usa la versión simplificada que devuelve path relativo a la raíz
+    return path.startsWith('/') ? path : `/${path}`;
 };
+
 
 function AboutPage() {
   useSmoothScroll(true, 0.06);
@@ -73,25 +78,24 @@ function AboutPage() {
           const img = new Image();
           img.src = src;
           img.onload = resolve;
-          img.onerror = resolve; // Resuelve incluso en error para no bloquear
+          img.onerror = resolve;
         });
       });
-
       Promise.all(imagePromises).finally(() => setTeamImagesLoaded(true));
     };
-
     preloadTeamImages();
     window.scrollTo(0, 0);
   }, []);
 
   return (
+    // Contenedor principal SIN el padding inferior extra
     <motion.div
         key="about-page"
         initial="hidden"
         animate="visible"
         exit="exit"
         variants={pageTransitionVariants}
-        className="min-h-screen font-sans antialiased bg-[var(--background)] text-[var(--text)]"
+        className="min-h-screen font-sans antialiased bg-[var(--background)] text-[var(--text)]" // Removido pb-8
     >
       <Header />
 
@@ -104,50 +108,51 @@ function AboutPage() {
       >
         <div className="container mx-auto px-6 sm:px-10 md:px-20 text-center">
           <h1 className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-[var(--text)]`}>Sobre Nosotros</h1>
-          <p className={`text-lg md:text-xl lg:text-2xl tracking-wide mt-6 ${secondaryTextColorClass}`}> {/* Aumentado margen superior */}
+          <p className={`text-lg md:text-xl lg:text-2xl tracking-wide mt-6 ${secondaryTextColorClass}`}>
             Conoce nuestra historia, filosofía y al equipo detrás de Artucture.
           </p>
         </div>
       </motion.div>
 
-      {/* History Section */}
-      {aboutData.history && (
+      {/* History Section REESTRUCTURADA */}
+      {aboutData.historySummary && aboutData.historySummary.length > 0 && (
         <ScrollAnimatedSection
           className="container mx-auto px-6 sm:px-10 md:px-20 py-24 md:py-32 lg:py-40"
-          initial="visible" // Inicia visible para evitar FOUC
+          initial="visible"
           animate="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.1 }}
         >
-           {/* Grid para separar título y texto en pantallas medianas y grandes */}
-           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-start"> {/* Cambiado a 12 columnas para más flexibilidad */}
-             <div className="md:col-span-4"> {/* Título ocupa menos espacio */}
-                <motion.h2
-                  className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 text-[var(--text)] leading-tight sticky top-24" // Sticky title
-                  variants={itemFadeUpVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.5 }}
-                >
-                  Nuestra Trayectoria
-                </motion.h2>
-             </div>
+           {/* Layout de una sola columna */}
+           <div className="max-w-4xl mx-auto"> {/* Centrado y con ancho máximo */}
+             <motion.h2
+                className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-12 md:mb-16 text-[var(--text)] text-center leading-tight" // Título centrado
+                variants={itemFadeUpVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.5 }}
+              >
+                Nuestra Trayectoria
+              </motion.h2>
+
              <motion.div
-               className="md:col-span-8" // Texto ocupa más espacio
-               variants={itemFadeUpVariants}
+               className="space-y-6 md:space-y-8" // Espacio entre párrafos
+               variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
                initial="hidden"
                whileInView="visible"
-               viewport={{ once: true, amount: 0.2 }}
-               transition={{ delay: 0.1 }} // Ligero retraso para el texto
+               viewport={{ once: true, amount: 0.1 }}
              >
-                <p className={readableTextStyle}> {/* Usar estilo de texto legible */}
-                    {aboutData.history}
-                </p>
+                {/* Mapea los párrafos del resumen */}
+                {aboutData.historySummary.map((paragraph, index) => (
+                  <motion.p key={index} className={readableTextStyle} variants={itemFadeUpVariants}>
+                    {paragraph}
+                  </motion.p>
+                ))}
              </motion.div>
            </div>
         </ScrollAnimatedSection>
       )}
 
-      {/* Mission & Vision Section */}
+      {/* Mission & Vision Section (Textos actualizados) */}
       {(aboutData.mission || aboutData.vision) && (
         <ScrollAnimatedSection
             className="py-24 md:py-32 lg:py-40 bg-[var(--secondary)]/50"
@@ -156,28 +161,30 @@ function AboutPage() {
             viewport={{ once: true, amount: 0.1 }}
         >
            <div className="container mx-auto px-6 sm:px-10 md:px-20">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-start">
+                 {/* Columna Misión */}
                  {aboutData.mission && (
                     <motion.div
                       variants={itemFadeUpVariants}
-                      initial="hidden" // Inicia oculto para animar
-                      whileInView="visible" // Anima al entrar en vista
+                      initial="hidden"
+                      whileInView="visible"
                       viewport={{ once: true, amount: 0.3 }}
                     >
                         <h3 className="text-3xl md:text-4xl font-semibold mb-6 text-[var(--text)]">Misión</h3>
-                        <p className={readableTextStyle}>{aboutData.mission}</p> {/* Usar estilo de texto legible */}
+                        <p className={readableTextStyle}>{aboutData.mission}</p>
                     </motion.div>
                  )}
+                 {/* Columna Visión */}
                  {aboutData.vision && (
                     <motion.div
                       variants={itemFadeUpVariants}
-                      initial="hidden" // Inicia oculto para animar
-                      whileInView="visible" // Anima al entrar en vista
+                      initial="hidden"
+                      whileInView="visible"
                       viewport={{ once: true, amount: 0.3 }}
-                      transition={{ delay: 0.1 }} // Ligero retraso para la segunda columna
+                      transition={{ delay: 0.1 }}
                     >
                         <h3 className="text-3xl md:text-4xl font-semibold mb-6 text-[var(--text)]">Visión</h3>
-                        <p className={readableTextStyle}>{aboutData.vision}</p> {/* Usar estilo de texto legible */}
+                        <p className={readableTextStyle}>{aboutData.vision}</p>
                     </motion.div>
                  )}
              </div>
@@ -195,7 +202,7 @@ function AboutPage() {
         >
             <div>
                <motion.h2
-                 className="text-4xl md:text-5xl font-bold mb-20 text-center text-[var(--text)]" // Aumentado margen inferior
+                 className="text-4xl md:text-5xl font-bold mb-20 text-center text-[var(--text)]"
                  variants={itemFadeUpVariants}
                  initial="hidden"
                  whileInView="visible"
@@ -205,9 +212,7 @@ function AboutPage() {
                </motion.h2>
                <motion.ul
                   className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-center"
-                  variants={{ // Variante para el contenedor de la lista (stagger children)
-                    visible: { transition: { staggerChildren: 0.07 } }
-                  }}
+                  variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
@@ -216,8 +221,8 @@ function AboutPage() {
                        <motion.li
                           key={index}
                           className={`bg-[var(--secondary)] p-8 rounded-4xl shadow-lg border ${borderColorClass} flex items-center justify-center aspect-square group ${valuesHoverBg} transition-colors`}
-                          variants={itemFadeUpVariants} // Usar la misma variante fade-up para cada item
-                          whileHover={{ scale: 0.97, transition: { duration: 0.2 } }} // Transición más rápida en hover
+                          variants={itemFadeUpVariants}
+                          whileHover={{ scale: 0.97, transition: { duration: 0.2 } }}
                           whileTap={{ scale: 0.95 }}
                         >
                            <span className="text-xl font-semibold text-[var(--text)] transition-transform duration-300 group-hover:scale-105">{value}</span>
@@ -230,15 +235,15 @@ function AboutPage() {
 
       {/* Team Section */}
       {aboutData.team && Array.isArray(aboutData.team) && aboutData.team.length > 0 && (
-        <ScrollAnimatedSection
+         <ScrollAnimatedSection
             className="py-24 md:py-32 lg:py-40 bg-[var(--secondary)]/50"
             initial="visible"
             animate="visible"
-            viewport={{ once: true, amount: 0.05 }} // Reduce amount to trigger sooner
-        >
+            viewport={{ once: true, amount: 0.05 }}
+         >
            <div className="container mx-auto px-6 sm:px-10 md:px-20">
              <motion.h2
-                className="text-4xl md:text-5xl font-bold text-center mb-20 text-[var(--text)]" // Aumentado margen inferior
+                className="text-4xl md:text-5xl font-bold text-center mb-20 text-[var(--text)]"
                 variants={itemFadeUpVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -247,17 +252,17 @@ function AboutPage() {
                 Conoce al Equipo
              </motion.h2>
              <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16 md:gap-x-12 md:gap-y-20" // Ajustado grid y gaps
-                variants={{ visible: { transition: { staggerChildren: 0.1 } } }} // Stagger para los miembros del equipo
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16 md:gap-x-12 md:gap-y-20"
+                variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }} // Amount más bajo para iniciar stagger antes
+                viewport={{ once: true, amount: 0.1 }}
               >
-               {aboutData.team.map((member) => ( // No se usa index para delay, se usa staggerChildren
+               {aboutData.team.map((member) => (
                    <motion.div
                      key={member.name}
                      className="text-center group"
-                     variants={itemFadeUpVariants} // Variante individual para cada miembro
+                     variants={itemFadeUpVariants}
                    >
                        <motion.div
                          className={`w-48 h-48 lg:w-56 lg:h-56 mx-auto mb-5 rounded-full overflow-hidden bg-[var(--secondary)] shadow-md border ${borderColorClass} relative`}
@@ -265,27 +270,23 @@ function AboutPage() {
                          whileTap={{ scale: 0.98 }}
                          transition={hoverTransition}
                        >
-                           {/* Placeholder visual más sutil mientras cargan las imágenes */}
                            {!teamImagesLoaded && (
                              <div className="absolute inset-0 bg-[color:color-mix(in_srgb,_var(--secondary),_transparent_50%)] animate-pulse rounded-full"></div>
                            )}
                            <img
                              src={getImageUrl(member.image)}
                              alt={member.name}
-                             // Load lazy para imágenes debajo del fold inicial
                              loading="lazy"
-                             className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ${teamImagesLoaded ? 'opacity-100' : 'opacity-0'}`} // Transición más suave
+                             className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ${teamImagesLoaded ? 'opacity-100' : 'opacity-0'}`}
                              onError={(e) => {
                                e.target.onerror = null;
-                               e.target.src = getImageUrl(null); // Carga placeholder en error
+                               e.target.src = getImageUrl(null);
                                e.target.style.opacity='1';
-                               // Mantiene el fondo original en caso de error
-                               // e.target.parentElement.style.backgroundColor = 'var(--secondary)';
                              }}
                            />
                        </motion.div>
                        <h4 className="text-xl lg:text-2xl font-semibold text-[var(--text)] mt-4">{member.name}</h4>
-                       <p className={`${secondaryTextColorClass} text-base lg:text-lg mt-1`}>{member.role}</p> {/* Margen superior pequeño */}
+                       <p className={`${secondaryTextColorClass} text-base lg:text-lg mt-1`}>{member.role}</p>
                    </motion.div>
                ))}
              </motion.div>
@@ -294,7 +295,7 @@ function AboutPage() {
       )}
 
       <Footer />
-    </motion.div>
+    </motion.div> // <-- Cierre del motion.div principal
   );
 }
 

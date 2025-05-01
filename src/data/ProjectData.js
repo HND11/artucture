@@ -48,8 +48,8 @@ const baseProjectsData = {
   temp_p2: { // Gardenia Apartments - Las Terrenas
     projectName: "Gardenia Apartments",
     title: "Residencias Tropicales en Las Terrenas",
-    image: "/gardenia-apartments-principal.png", // Corregido nombre imagen
-    thumbnail: "/gardenia-apartments-principal.png",
+    image: "/gardenia-principal.png", // Corregido nombre imagen
+    thumbnail: "/gardenia-principal.png",
     description: "Complejo residencial que fusiona diseño contemporáneo con la exuberancia natural de Las Terrenas, Samaná.",
     uniqueText: "Ubicado en la costa atlántica de República Dominicana, Gardenia Apartments ofrece una experiencia de vida que armoniza con la naturaleza tropical. Las unidades residenciales están diseñadas para maximizar la ventilación cruzada y la iluminación natural, utilizando materiales locales y técnicas sostenibles.",
     details: [ { label: "Ubicación", value: "Las Terrenas, Samaná, República Dominicana" }, { label: "Área", value: "1,200 m²" }, { label: "Año de finalización", value: "2022" } ],
